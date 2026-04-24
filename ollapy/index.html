@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>xCavate Web Assistent</title>
+    <title>xCavate Web Assistant</title>
+    <meta name="description" content="xCavate customer support assistant — get help with your account, transactions, and more.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js" 
             integrity="sha512-H+rglffZ6f5gF7UJgvH4Naa+fGCgjrHKMgoFOGmcPTRwR6oILo5R+gtzNrpDp7iMV3udbymBVjkeZGNz1Em4rQ==" 
@@ -14,19 +19,110 @@
     <link rel="stylesheet" href="css/style.css">
 
 </head>
-<!-- Complete body content in index.html -->
 <body>
     <div class="app-layout">
-        <div class="sidebar-controls">
+        <!-- Sidebar (chat history) -->
+        <div class="sidebar-controls collapsed">
             <nav id="history-sidebar">
                 <ul id="chat-history-list"></ul>
             </nav>
         </div>
-        <div class="chat-container">
+
+        <!-- ==================== LANDING / HELP PAGE ==================== -->
+        <div id="landing-page" class="landing-page">
+            <!-- Header -->
+            <header class="landing-header">
+                <div class="landing-header-row">
+                    <div class="landing-header-left">
+                        <h1 class="landing-title">Ask me anything!</h1>
+                    </div>
+                    <button id="open-chat-btn" class="message-btn" aria-label="Open chat">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        <span>Message</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Search Bar -->
+            <div class="landing-search-wrapper">
+                <input type="text" id="landing-search" class="landing-search" placeholder="Ask your question, like 'How do I connect my wallet?'" autocomplete="off">
+            </div>
+
+            <!-- Self Service Section -->
+            <section class="landing-section" id="self-service-section">
+                <h2 class="section-title">Self Service</h2>
+                <div class="self-service-grid" id="self-service-grid">
+                    <button class="service-card" data-prompt="How can I recover my account?">
+                        <div class="service-card-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </div>
+                        <span class="service-card-label">How can I recover my account?</span>
+                    </button>
+                    <button class="service-card" data-prompt="Where can I see my transaction history?">
+                        <div class="service-card-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                        </div>
+                        <span class="service-card-label">Where can I see my transaction history?</span>
+                    </button>
+                    <button class="service-card" data-prompt="I need help with a failed transaction">
+                        <div class="service-card-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                        </div>
+                        <span class="service-card-label">I need help with a failed transaction</span>
+                    </button>
+                    <button class="service-card" data-prompt="What is KYC and how do I complete it?">
+                        <div class="service-card-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/></svg>
+                        </div>
+                        <span class="service-card-label">What is KYC and how do I complete it?</span>
+                    </button>
+                </div>
+                <button class="view-all-btn" id="view-all-self-service">View All</button>
+            </section>
+
+            <!-- Category Columns -->
+            <section class="landing-section" id="categories-section">
+                <div class="category-columns">
+                    <div class="category-column">
+                        <h3 class="category-title">Account &amp; Security</h3>
+                        <ul class="category-list">
+                            <li><button class="category-item" data-prompt="How do I reset my password?">How do I reset my password?</button></li>
+                            <li><button class="category-item" data-prompt="How can I change my email?">How can I change my email?</button></li>
+                            <li><button class="category-item" data-prompt="How do I enable two-factor authentication?">How do I enable two-factor authentication?</button></li>
+                        </ul>
+                    </div>
+                    <div class="category-column">
+                        <h3 class="category-title">Transactions</h3>
+                        <ul class="category-list">
+                            <li><button class="category-item" data-prompt="How do I track my transaction?">How do I track my transaction?</button></li>
+                            <li><button class="category-item" data-prompt="How can I cancel a transaction?">How can I cancel a transaction?</button></li>
+                            <li><button class="category-item" data-prompt="How do I get a refund?">How do I get a refund?</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAQ Section -->
+            <section class="landing-section" id="faq-section">
+                <h2 class="section-title">FAQ</h2>
+                <ul class="faq-list">
+                    <li><button class="faq-item" data-prompt="I can't connect my wallet — help?">I can't connect my wallet — help?</button></li>
+                    <li><button class="faq-item" data-prompt="Why is my token claim delayed?">Why is my token claim delayed?</button></li>
+                    <li><button class="faq-item" data-prompt="Where can I see pending actions?">Where can I see pending actions?</button></li>
+                </ul>
+            </section>
+        </div>
+
+        <!-- ==================== CHAT VIEW ==================== -->
+        <div class="chat-container" id="chat-view" style="display:none;">
             <header class="app-header">
-                <button id="toggle-sidebar-btn" aria-label="Open history">&lt;</button>
+                <button id="toggle-sidebar-btn" aria-label="Go back">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
                 <h1>Bobai</h1>
-                <button id="new-chat-btn" aria-label="Start new chat">+</button>
+                <button id="new-chat-btn" aria-label="Start new chat">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
                 <span id="model-name-span" style="display:none;"></span>
             </header>
 
@@ -57,15 +153,12 @@
                 <form id="chat-form">
                     <div class="prompt-input-wrapper">
                         <input type="file" id="file-input" style="display: none;" multiple accept="text/*">
-                        <button type="button" id="attach-button" title="Attach file">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.03 2.47 5.5 5.5 5.5s5.5-2.47 5.5-5.5V6h-1.5z"/></svg>
-                        </button>
                         <textarea id="prompt-input" placeholder="Ask me anything..." autocomplete="off" rows="1" style="resize: none; overflow-y: auto; max-height: 220px;"></textarea>
                     </div>
-                    <button type="submit" id="send-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                    <button type="submit" id="send-button" aria-label="Send message">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                     </button>
-                    <button type="button" id="cancel-button" style="display: none; border-radius: 100%;">Cancel</button>
+                    <button type="button" id="cancel-button" style="display: none;">Cancel</button>
                 </form>
             </div>
         </div>

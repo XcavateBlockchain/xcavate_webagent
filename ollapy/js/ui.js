@@ -17,10 +17,25 @@ export const dom = {
     quickStartGrid: document.getElementById('quick-start-grid'),
     toggleSidebarBtn: document.getElementById('toggle-sidebar-btn'),
     sidebarControls: document.querySelector('.sidebar-controls'),
-    attachmentContainer: document.getElementById('attachment-container'), // Added
-    fileInput: document.getElementById('file-input'), // Added
-    attachButton: document.getElementById('attach-button'), // Added
+    attachmentContainer: document.getElementById('attachment-container'),
+    fileInput: document.getElementById('file-input'),
+    attachButton: document.getElementById('attach-button'),
+    // New: landing page & chat view references
+    landingPage: document.getElementById('landing-page'),
+    chatView: document.getElementById('chat-view'),
+    openChatBtn: document.getElementById('open-chat-btn'),
 };
+
+// --- PAGE NAVIGATION ---
+export function showLanding() {
+    if (dom.landingPage) dom.landingPage.style.display = 'flex';
+    if (dom.chatView) dom.chatView.style.display = 'none';
+}
+
+export function showChat() {
+    if (dom.landingPage) dom.landingPage.style.display = 'none';
+    if (dom.chatView) dom.chatView.style.display = 'flex';
+}
 
 // Update chat title with model name
 export function updateChatTitle(modelName) {
@@ -45,7 +60,7 @@ export function renderHistoryList(chats, activeChatId, loadChatCallback, deleteC
         const li = document.createElement('li');
         li.dataset.chatId = chat.id;
 
-        // NEW: Container for title and tag
+        // Container for title and tag
         const infoDiv = document.createElement('div');
         infoDiv.className = 'chat-info';
 

@@ -167,6 +167,8 @@ function handleCancelClick() {
 
 async function submitQuickAction(promptText) {
     if (!promptText) return;
+    // Make sure we're in chat view
+    ui.showChat();
     ui.dom.promptInput.value = promptText;
     await handleFormSubmit({ preventDefault: () => {} });
 }
@@ -217,9 +219,82 @@ async function refreshHistoryList() {
     ui.renderHistoryList(chats, state.getActiveChatId(), loadChat, deleteChat);
 }
 
+// --- NAVIGATION ---
+
+function navigateToChat() {
+    ui.showChat();
+    startNewChat();
+}
+
+function navigateToLanding() {
+    ui.showLanding();
+}
+
+// --- LANDING PAGE EVENT BINDING ---
+
+function bindLandingPageEvents() {
+    // "Message" button → opens chat
+    const openChatBtn = document.getElementById('open-chat-btn');
+    if (openChatBtn) {
+        openChatBtn.addEventListener('click', navigateToChat);
+    }
+
+    // Self-service cards → open chat with prompt
+    document.querySelectorAll('.service-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const prompt = card.dataset.prompt;
+            if (prompt) {
+                navigateToChat();
+                submitQuickAction(prompt);
+            }
+        });
+    });
+
+    // Category items → open chat with prompt
+    document.querySelectorAll('.category-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const prompt = item.dataset.prompt;
+            if (prompt) {
+                navigateToChat();
+                submitQuickAction(prompt);
+            }
+        });
+    });
+
+    // FAQ items → open chat with prompt
+    document.querySelectorAll('.faq-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const prompt = item.dataset.prompt;
+            if (prompt) {
+                navigateToChat();
+                submitQuickAction(prompt);
+            }
+        });
+    });
+
+    // Search bar — submit on Enter
+    const searchInput = document.getElementById('landing-search');
+    if (searchInput) {
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const query = searchInput.value.trim();
+                if (query) {
+                    navigateToChat();
+                    submitQuickAction(query);
+                    searchInput.value = '';
+                }
+            }
+        });
+    }
+}
+
 // --- INITIALIZATION ---
 
 async function init() {
+    // Show landing page first
+    ui.showLanding();
+
     // Set initial title
     ui.updateChatTitle(state.getCurrentModel());
 
@@ -227,11 +302,18 @@ async function init() {
     ui.dom.form.addEventListener('submit', handleFormSubmit);
     ui.dom.newChatBtn.addEventListener('click', startNewChat);
     ui.dom.cancelButton.addEventListener('click', handleCancelClick); // Cancel button listener
-    ui.dom.attachButton.addEventListener('click', () => ui.dom.fileInput.click()); // Trigger click on hidden file input
-    ui.dom.fileInput.addEventListener('change', handleFileInputChange); // Handle file selection
     ui.bindQuickStartActions(submitQuickAction);
 
-    // Start first chat
+    // Back button: go to landing page
+    const toggleBtn = document.getElementById('toggle-sidebar-btn');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', navigateToLanding);
+    }
+
+    // Bind landing page events
+    bindLandingPageEvents();
+
+    // Start first chat (preloads state)
     await startNewChat();
 }
 
@@ -258,86 +340,77 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    const toggleBtn = document.getElementById('toggle-sidebar-btn');
-    const sidebar = document.querySelector('.sidebar-controls');
-    const appLayout = document.querySelector('.app-layout');
-
-    if (toggleBtn && sidebar && appLayout) {
-        toggleBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('collapsed');
-            appLayout.classList.toggle('sidebar-collapsed');
-        });
-    }
-
     const chatContainer = document.querySelector('.chat-container');
     const dropZone = document.getElementById('drop-zone');
 
     let dragCounter = 0;
 
-    chatContainer.addEventListener('dragenter', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dragCounter++;
-        if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
-            chatContainer.classList.add('drag-over');
-        }
-    });
+    if (chatContainer) {
+        chatContainer.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dragCounter++;
+            if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+                chatContainer.classList.add('drag-over');
+            }
+        });
 
-    chatContainer.addEventListener('dragleave', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dragCounter--;
-        if (dragCounter === 0) {
+        chatContainer.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dragCounter--;
+            if (dragCounter === 0) {
+                chatContainer.classList.remove('drag-over');
+            }
+        });
+
+        chatContainer.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        chatContainer.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dragCounter = 0;
             chatContainer.classList.remove('drag-over');
-        }
-    });
 
-    chatContainer.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-    });
-
-    chatContainer.addEventListener('drop', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dragCounter = 0;
-        chatContainer.classList.remove('drag-over');
-
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-            
-            let filesProcessed = 0;
-            for (const file of files) {
-                if (file.type.startsWith('text/')) {
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        const fileContent = event.target.result;
-                        state.addAttachment({ name: file.name, content: fileContent });
-                        ui.renderAttachments(state.getAttachments(), removeAttachment);
-                        updateTotalTokenCount();
-                        filesProcessed++;
-                    };
-                    reader.onerror = (error) => {
-                        console.error("Error while reading file:", error);
-                        alert("Unable to read file.");
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                
+                let filesProcessed = 0;
+                for (const file of files) {
+                    if (file.type.startsWith('text/')) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            const fileContent = event.target.result;
+                            state.addAttachment({ name: file.name, content: fileContent });
+                            ui.renderAttachments(state.getAttachments(), removeAttachment);
+                            updateTotalTokenCount();
+                            filesProcessed++;
+                        };
+                        reader.onerror = (error) => {
+                            console.error("Error while reading file:", error);
+                            alert("Unable to read file.");
+                            filesProcessed++;
+                            if (filesProcessed === files.length) {
+                                ui.renderAttachments(state.getAttachments(), removeAttachment);
+                                updateTotalTokenCount();
+                            }
+                        };
+                        reader.readAsText(file);
+                    } else {
+                        alert(`Unsupported file: ${file.name}. You can attach text files only.`);
                         filesProcessed++;
                         if (filesProcessed === files.length) {
                             ui.renderAttachments(state.getAttachments(), removeAttachment);
-                            updateTotalTokenCount(); // Update token count even on error
+                            updateTotalTokenCount();
                         }
-                    };
-                    reader.readAsText(file);
-                } else {
-                    alert(`Unsupported file: ${file.name}. You can attach text files only.`);
-                    filesProcessed++;
-                    if (filesProcessed === files.length) {
-                        ui.renderAttachments(state.getAttachments(), removeAttachment);
-                        updateTotalTokenCount(); // Update token count even if file is not supported
                     }
                 }
             }
-        }
-    });
+        });
+    }
 });
 
 // Auto-expand textarea up to 10 lines
