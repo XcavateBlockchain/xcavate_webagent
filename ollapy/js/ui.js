@@ -13,6 +13,8 @@ export const dom = {
     tokenCountText: document.getElementById('token-count-text'),
     tokenProgressBarInner: document.getElementById('token-progress-bar-inner'),
     modelNameSpan: document.getElementById('model-name-span'),
+    welcomeState: document.getElementById('welcome-state'),
+    quickStartGrid: document.getElementById('quick-start-grid'),
     toggleSidebarBtn: document.getElementById('toggle-sidebar-btn'),
     sidebarControls: document.querySelector('.sidebar-controls'),
     attachmentContainer: document.getElementById('attachment-container'), // Added
@@ -22,10 +24,19 @@ export const dom = {
 
 // Update chat title with model name
 export function updateChatTitle(modelName) {
-    // Extract base name (e.g. "gemma3:latest" -> "Gemma3")
-    const friendlyName = modelName.split(':')[0];
-    const capitalizedName = friendlyName.charAt(0).toUpperCase() + friendlyName.slice(1);
-    dom.modelNameSpan.textContent = capitalizedName;
+    dom.modelNameSpan.textContent = 'Bobai';
+}
+
+export function setWelcomeState(isVisible) {
+    if (!dom.welcomeState) return;
+    dom.welcomeState.style.display = isVisible ? 'flex' : 'none';
+}
+
+export function bindQuickStartActions(onSelect) {
+    if (!dom.quickStartGrid) return;
+    dom.quickStartGrid.querySelectorAll('.quick-action-btn').forEach((button) => {
+        button.onclick = () => onSelect(button.dataset.prompt || button.textContent || '');
+    });
 }
 
 export function renderHistoryList(chats, activeChatId, loadChatCallback, deleteChatCallback) {
@@ -81,6 +92,30 @@ export function addMessageToLog(role, content, responseTime) {
     return messageElement;
 }
 
+export function clearInlineQuickReplies() {
+    dom.chatLog.querySelectorAll('.inline-quick-replies').forEach((node) => node.remove());
+}
+
+export function renderInlineQuickReplies(anchorMessageElement, replies, onSelect) {
+    if (!anchorMessageElement || !Array.isArray(replies) || replies.length === 0) return;
+    clearInlineQuickReplies();
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'inline-quick-replies';
+
+    replies.forEach((replyText) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'quick-action-btn quick-reply-btn';
+        button.textContent = replyText;
+        button.onclick = () => onSelect(replyText);
+        wrapper.appendChild(button);
+    });
+
+    anchorMessageElement.insertAdjacentElement('afterend', wrapper);
+    scrollToBottom();
+}
+
 export function addResponseTime(element, duration) {
     const timeElement = document.createElement('div');
     timeElement.className = 'response-time-info';
@@ -110,6 +145,7 @@ export function toggleLoading(isLoading) {
 
 export function clearChatLog() {
     dom.chatLog.innerHTML = '';
+    clearInlineQuickReplies();
 }
 
 export function clearPromptInput() {

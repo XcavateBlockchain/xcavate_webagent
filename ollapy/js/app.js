@@ -7,6 +7,11 @@ import * as ui from './ui.js';
 
 let currentAbortController = null; // Used to cancel in-flight requests
 
+const DEFAULT_QUICK_REPLIES = [
+    'Help Me Fix It',
+    'Create Support Ticket'
+];
+
 // --- BUSINESS LOGIC AND EVENT HANDLING ---
 
 async function loadChat(chatId) {
@@ -19,6 +24,7 @@ async function loadChat(chatId) {
             state.setActiveChat(chatData.id, chatData);
             ui.clearChatLog();
             state.getCurrentChat().history.forEach(turn => ui.addMessageToLog(turn.role, turn.content, turn.responseTime));
+            ui.setWelcomeState(state.getCurrentChat().history.length === 0);
             
             await refreshHistoryList();
             updateTotalTokenCount();
@@ -37,6 +43,7 @@ async function startNewChat() {
     ui.clearChatLog();
     state.clearAttachments();
     ui.clearAttachmentsUI();
+    ui.setWelcomeState(true);
     await refreshHistoryList();
     updateTotalTokenCount();
 }
@@ -58,6 +65,8 @@ async function handleFormSubmit(event) {
     const attachments = state.getAttachments();
 
     if (!userPrompt && attachments.length === 0) return;
+    ui.setWelcomeState(false);
+    ui.clearInlineQuickReplies();
 
     // Append attachment content to the prompt
     if (attachments.length > 0) {
@@ -123,6 +132,9 @@ async function handleFormSubmit(event) {
                 const duration = ((performance.now() - startTime) / 1000).toFixed(2);
                 ui.addResponseTime(aiMessageElement, duration);
 
+                const quickReplies = generateQuickReplies(userPrompt, fullResponse);
+                ui.renderInlineQuickReplies(aiMessageElement, quickReplies, submitQuickAction);
+
                 const lastTurn = state.getCurrentChat().history[state.getCurrentChat().history.length - 1];
                 if (lastTurn.role === 'assistant') {
                     lastTurn.responseTime = duration;
@@ -151,6 +163,26 @@ function handleCancelClick() {
     if (currentAbortController) {
         currentAbortController.abort();
     }
+}
+
+async function submitQuickAction(promptText) {
+    if (!promptText) return;
+    ui.dom.promptInput.value = promptText;
+    await handleFormSubmit({ preventDefault: () => {} });
+}
+
+function generateQuickReplies(lastUserPrompt, lastAssistantResponse) {
+    const combined = `${lastUserPrompt} ${lastAssistantResponse}`.toLowerCase();
+    if (combined.includes('payment') || combined.includes('transaction')) {
+        return ['Check Transaction Status', 'Create Support Ticket'];
+    }
+    if (combined.includes('account') || combined.includes('login')) {
+        return ['Reset My Account', 'Contact Support'];
+    }
+    if (combined.includes('feature') || combined.includes('app')) {
+        return ['Show Me More Features', 'How Do I Use This?'];
+    }
+    return DEFAULT_QUICK_REPLIES;
 }
 
 // --- INTERNAL UTILITIES ---
@@ -197,6 +229,7 @@ async function init() {
     ui.dom.cancelButton.addEventListener('click', handleCancelClick); // Cancel button listener
     ui.dom.attachButton.addEventListener('click', () => ui.dom.fileInput.click()); // Trigger click on hidden file input
     ui.dom.fileInput.addEventListener('change', handleFileInputChange); // Handle file selection
+    ui.bindQuickStartActions(submitQuickAction);
 
     // Start first chat
     await startNewChat();
@@ -215,16 +248,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Initialize correct height
         autoResizeTextarea(promptInput);
 
-        // Submit with Command+Enter and keep Enter for new line
+        // Enter submits, Shift+Enter inserts a newline
         promptInput.addEventListener('keydown', function(e) {
-            // On Mac, metaKey is the Command key
-            if (e.key === 'Enter' && e.metaKey) {
+            if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                // Find the form and submit it
                 const form = document.getElementById('chat-form');
                 if (form) form.requestSubmit();
-            } else if (e.key === 'Enter' && !e.shiftKey && !e.metaKey) {
-                // Enter alone inserts a new line (default textarea behavior)
             }
         });
     }
