@@ -1,1 +1,6 @@
 Flask
+requests
+xmltodict
+langchain
+langgraph
+langchain-anthropic

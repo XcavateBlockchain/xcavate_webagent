@@ -20,10 +20,10 @@ export const dom = {
     attachmentContainer: document.getElementById('attachment-container'),
     fileInput: document.getElementById('file-input'),
     attachButton: document.getElementById('attach-button'),
-    // New: landing page & chat view references
     landingPage: document.getElementById('landing-page'),
     chatView: document.getElementById('chat-view'),
     openChatBtn: document.getElementById('open-chat-btn'),
+    mcpStatusIndicator: document.getElementById('mcp-status-indicator'),
 };
 
 // --- PAGE NAVIGATION ---
@@ -39,7 +39,7 @@ export function showChat() {
 
 // Update chat title with model name
 export function updateChatTitle(modelName) {
-    dom.modelNameSpan.textContent = 'Bobai';
+    dom.modelNameSpan.textContent = 'RealXmarket Help';
 }
 
 export function setWelcomeState(isVisible) {
@@ -93,9 +93,10 @@ export function renderHistoryList(chats, activeChatId, loadChatCallback, deleteC
 export function addMessageToLog(role, content, responseTime) {
     const messageElement = document.createElement('div');
     messageElement.classList.add('message', role === 'user' ? 'user-message' : 'ai-message');
-    
+
     if (role === 'assistant') {
-        messageElement.innerHTML = DOMPurify.sanitize(marked.parse(content));
+        let htmlContent = marked.parse(content).trim();
+        messageElement.innerHTML = DOMPurify.sanitize(htmlContent);
     } else {
         messageElement.textContent = content;
     }
@@ -224,5 +225,21 @@ export function clearAttachmentsUI() {
     if (container) {
         container.innerHTML = '';
         container.style.display = 'none';
+    }
+}
+
+// Docs Status UI helpers
+export function updateMCPStatus(docsConnected) {
+    const indicator = document.getElementById('mcp-web-status');
+    if (!indicator) return;
+
+    if (docsConnected) {
+        indicator.classList.add('mcp-connected');
+        indicator.classList.remove('mcp-disconnected');
+        indicator.title = 'RealXmarket docs connected';
+    } else {
+        indicator.classList.add('mcp-disconnected');
+        indicator.classList.remove('mcp-connected');
+        indicator.title = 'Docs not available';
     }
 }

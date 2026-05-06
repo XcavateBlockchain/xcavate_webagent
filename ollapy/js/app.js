@@ -109,28 +109,26 @@ async function handleFormSubmit(event) {
     currentAbortController = new AbortController();
 
     try {
-        await api.streamOllamaResponse(
+        await api.streamAgentResponse(
             state.getCurrentChat().history,
-            state.getCurrentModel(),
+            'claude-3-5-sonnet-20241022',
             // onChunk
-            (parsed) => {
-                if (parsed.message && parsed.message.content) {
-                    fullResponse += parsed.message.content;
+            (message) => {
+                if (message.content) {
+                    fullResponse += message.content;
                 }
-                const htmlContent = marked.parse(fullResponse);
+                const htmlContent = marked.parse(fullResponse.trim());
                 aiMessageElement.innerHTML = DOMPurify.sanitize(htmlContent) + '<span class="cursor"></span>';
                 ui.scrollToBottom();
-
-                if (parsed.done) {
-                    state.pushToHistory({ role: 'assistant', content: fullResponse });
-                    updateTotalTokenCount();
-                }
             },
             // onDone
             async () => {
                 aiMessageElement.querySelector('.cursor')?.remove();
                 const duration = ((performance.now() - startTime) / 1000).toFixed(2);
                 ui.addResponseTime(aiMessageElement, duration);
+
+                state.pushToHistory({ role: 'assistant', content: fullResponse.trim() });
+                updateTotalTokenCount();
 
                 const quickReplies = generateQuickReplies(userPrompt, fullResponse);
                 ui.renderInlineQuickReplies(aiMessageElement, quickReplies, submitQuickAction);
@@ -188,6 +186,21 @@ function generateQuickReplies(lastUserPrompt, lastAssistantResponse) {
 }
 
 // --- INTERNAL UTILITIES ---
+
+async function initializeMCPStatus() {
+    try {
+        const response = await fetch('/api/mcp-status');
+        if (response.ok) {
+            const data = await response.json();
+            ui.updateMCPStatus(data.available || false);
+        } else {
+            ui.updateMCPStatus(false);
+        }
+    } catch (error) {
+        console.warn('Failed to get MCP status:', error);
+        ui.updateMCPStatus(false);
+    }
+}
 
 function estimateTokens(text) { return Math.ceil(text.length / 4); }
 
@@ -297,6 +310,9 @@ async function init() {
 
     // Set initial title
     ui.updateChatTitle(state.getCurrentModel());
+
+    // Initialize MCP connection and status display
+    await initializeMCPStatus();
 
     // Attach primary event listeners
     ui.dom.form.addEventListener('submit', handleFormSubmit);

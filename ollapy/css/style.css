@@ -381,6 +381,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     white-space: pre-wrap;
     font-size: 13.5px;
     animation: msgAppear 0.25s ease-out;
+    margin: 0;
+}
+.message p:last-child {
+    margin-bottom: 0;
+}
+.message p {
+    margin: 0;
 }
 @keyframes msgAppear {
     from { opacity: 0; transform: translateY(6px); }
@@ -610,6 +617,23 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
         border-left: none;
         border-right: none;
     }
+}
+
+/* ============================================================
+   MCP STATUS INDICATOR
+   ============================================================ */
+.mcp-status-indicator {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    transition: background-color var(--transition);
+}
+.mcp-status-indicator.mcp-connected {
+    background: var(--color-green, #22c55e);
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+}
+.mcp-status-indicator.mcp-disconnected {
+    background: var(--color-gray, #9ca3af);
 }
 
 @media (max-width: 480px) {
