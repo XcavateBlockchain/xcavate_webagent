@@ -117,7 +117,9 @@ async function handleFormSubmit(event, quickActionPrompt = null) {
                 if (message.content) {
                     fullResponse += message.content;
                 }
-                const htmlContent = marked.parse(fullResponse.trim());
+                let htmlContent = marked.parse(fullResponse.trim());
+                // Remove extra whitespace between tags
+                htmlContent = htmlContent.replace(/\s*\n\s*/g, ' ').replace(/>\s+</g, '><').trim();
                 aiMessageElement.innerHTML = DOMPurify.sanitize(htmlContent) + '<span class="cursor"></span>';
                 ui.scrollToBottom();
             },

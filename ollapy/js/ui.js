@@ -94,12 +94,20 @@ export function renderHistoryList(chats, activeChatId, loadChatCallback, deleteC
     });
 }
 
+// Configure marked with custom options
+marked.setOptions({
+    breaks: false,
+    gfm: true
+});
+
 export function addMessageToLog(role, content, responseTime) {
     const messageElement = document.createElement('div');
     messageElement.classList.add('message', role === 'user' ? 'user-message' : 'ai-message');
 
     if (role === 'assistant') {
         let htmlContent = marked.parse(content).trim();
+        // Remove extra whitespace between tags
+        htmlContent = htmlContent.replace(/\s*\n\s*/g, ' ').replace(/>\s+</g, '><').trim();
         messageElement.innerHTML = DOMPurify.sanitize(htmlContent);
     } else {
         messageElement.textContent = content;

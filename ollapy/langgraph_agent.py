@@ -57,6 +57,16 @@ def ai_node(state: AgentState, llm):
     if not has_system:
         messages = [SystemMessage(content=SYSTEM_PROMPT)] + list(messages)
 
+    # Print the full prompt being sent to the AI
+    print("\n" + "="*60)
+    print("FULL PROMPT SENT TO AI:")
+    print("="*60)
+    for msg in messages:
+        role = type(msg).__name__
+        content = msg.content[:200] + "..." if len(str(msg.content)) > 200 else msg.content
+        print(f"\n[{role}]\n{content}")
+    print("="*60 + "\n")
+
     response = llm.invoke(messages)
 
     tool_calls = getattr(response, 'tool_calls', [])
@@ -197,7 +207,11 @@ def stream_agent_response(messages: List[dict], model: str = "gpt-4o"):
             for chunk in simple_llm.stream(msg_list):
                 if hasattr(chunk, 'content') and chunk.content:
                     yield {"messages": [chunk]}
-
+                # Print the full AI response
+                if hasattr(chunk, 'content'):
+                    print(chunk.content, end="")
+                else:
+                    print(chunk)
             yield {"done": True}
             return
 
