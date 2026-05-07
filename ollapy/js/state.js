@@ -1,5 +1,5 @@
 // js/state.js
-import { DEFAULT_OLLAMA_MODEL } from './config.js';
+import { DEFAULT_MODEL } from './config.js';
 
 let state = {
     activeChatId: null,
@@ -42,7 +42,7 @@ export function getCurrentModel() {
 }
 
 export function setCurrentModel(modelName) {
-    state.currentModel = modelName || DEFAULT_OLLAMA_MODEL;
+    state.currentModel = modelName || DEFAULT_MODEL;
 }
 
 // FUNCTIONS TO HANDLE MODEL CONTEXT WINDOWS

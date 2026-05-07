@@ -3,4 +3,4 @@ requests
 xmltodict
 langchain
 langgraph
-langchain-anthropic
+langchain-openai

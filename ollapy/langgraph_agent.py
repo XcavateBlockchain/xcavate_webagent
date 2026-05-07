@@ -1,7 +1,7 @@
-# langgraph_agent.py - LangGraph agent with Anthropic Claude and RealXmarket docs tool
+# langgraph_agent.py - LangGraph agent with OpenAI GPT-4o and RealXmarket docs tool
 from typing import TypedDict, Annotated, List, Any
 from langchain_core.tools import tool
-from langchain_anthropic import ChatAnthropic
+from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, END
 from langgraph.graph.message import add_messages
 from langchain_core.messages import ToolMessage, SystemMessage, convert_to_messages
@@ -28,13 +28,13 @@ If documentation returns no results, say: "I couldn't find this in the RealXmark
 
 Be brief and professional."""
 
-# LLM with tool binding - uses Anthropic API
-def create_llm_with_tools(model_name: str = "claude-3-5-sonnet-20241022"):
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+# LLM with tool binding - uses OpenAI API
+def create_llm_with_tools(model_name: str = "gpt-4o"):
+    api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
-        raise ValueError("ANTHROPIC_API_KEY environment variable not set")
+        raise ValueError("OPENAI_API_KEY environment variable not set")
 
-    llm = ChatAnthropic(
+    llm = ChatOpenAI(
         model=model_name,
         temperature=0.1,
         api_key=api_key
@@ -102,10 +102,10 @@ def final_answer_node(state: AgentState, llm):
         ))
 
     # Use LLM without tools for final answer
-    from langchain_anthropic import ChatAnthropic
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    simple_llm = ChatAnthropic(
-        model="claude-3-5-sonnet-20241022",
+    from langchain_openai import ChatOpenAI
+    api_key = os.environ.get("OPENAI_API_KEY")
+    simple_llm = ChatOpenAI(
+        model="gpt-4o",
         temperature=0.1,
         api_key=api_key
     )
@@ -113,7 +113,7 @@ def final_answer_node(state: AgentState, llm):
     return {"messages": [response], "tool_output": ""}
 
 # Create workflow
-def create_agent_graph(model: str = "claude-3-5-sonnet-20241022"):
+def create_agent_graph(model: str = "gpt-4o"):
     llm = create_llm_with_tools(model)
 
     workflow = StateGraph(AgentState)
@@ -142,7 +142,7 @@ def create_agent_graph(model: str = "claude-3-5-sonnet-20241022"):
     return workflow.compile(checkpointer=None)
 
 # Streaming version
-def stream_agent_response(messages: List[dict], model: str = "claude-3-5-sonnet-20241022"):
+def stream_agent_response(messages: List[dict], model: str = "gpt-4o"):
     graph = create_agent_graph(model)
 
     for event in graph.stream(

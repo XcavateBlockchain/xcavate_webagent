@@ -1,4 +1,4 @@
-# server.py - Flask backend with LangGraph agent (Anthropic)
+# server.py - Flask backend with LangGraph agent (OpenAI)
 import os
 import json
 import sys
@@ -51,7 +51,7 @@ def web_search():
 def chat_stream():
     data = request.json
     messages = data.get('messages', [])
-    model = data.get('model', 'claude-3-5-sonnet-20241022')
+    model = data.get('model', 'gpt-4o')
 
     def generate():
         try:

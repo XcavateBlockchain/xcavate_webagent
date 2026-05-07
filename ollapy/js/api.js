@@ -1,5 +1,4 @@
-// js/api.js - API client for Anthropic-based LangGraph backend
-import { OLLAMA_BASE_URL } from './config.js';
+// js/api.js - API client for OpenAI-based LangGraph backend
 
 export async function getChats() {
     const response = await fetch('/api/chats');

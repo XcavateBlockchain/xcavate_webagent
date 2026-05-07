@@ -18,7 +18,7 @@ async function loadChat(chatId) {
     try {
         const chatData = await api.getChat(chatId);
         if (chatData && chatData.id) {
-            state.setCurrentModel(config.DEFAULT_OLLAMA_MODEL);
+            state.setCurrentModel(config.DEFAULT_MODEL);
             ui.updateChatTitle(state.getCurrentModel());
             
             state.setActiveChat(chatData.id, chatData);
@@ -111,7 +111,7 @@ async function handleFormSubmit(event) {
     try {
         await api.streamAgentResponse(
             state.getCurrentChat().history,
-            'claude-3-5-sonnet-20241022',
+            'gpt-4o',
             // onChunk
             (message) => {
                 if (message.content) {
@@ -147,9 +147,9 @@ async function handleFormSubmit(event) {
             aiMessageElement.textContent = 'Response cancelled.';
             aiMessageElement.style.color = 'var(--color-yellow)'; // Styling for cancelled state
         } else {
-            console.error('Ollama request error:', error);
+            console.error('OpenAI request error:', error);
             aiMessageElement.style.color = '#ff8a80';
-            aiMessageElement.textContent = `Error: ${error.message}. Make sure Ollama is running.`;
+            aiMessageElement.textContent = `Error: ${error.message}. Make sure OPENAI_API_KEY is set.`;
         }
     } finally {
         ui.toggleLoading(false);
