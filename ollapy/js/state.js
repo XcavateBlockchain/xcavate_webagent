@@ -4,7 +4,7 @@ import { DEFAULT_MODEL } from './config.js';
 let state = {
     activeChatId: null,
     currentChat: { id: null, title: '', history: [] },
-    currentModel: DEFAULT_OLLAMA_MODEL,
+    currentModel: DEFAULT_MODEL,
     modelContextWindows: {}, // New: map of models and their context windows
 };
 

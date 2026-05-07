@@ -58,10 +58,10 @@ async function deleteChat(chatId) {
     }
 }
 
-async function handleFormSubmit(event) {
+async function handleFormSubmit(event, quickActionPrompt = null) {
     event.preventDefault();
 
-    let userPrompt = ui.dom.promptInput.value.trim();
+    let userPrompt = quickActionPrompt || ui.dom.promptInput.value.trim();
     const attachments = state.getAttachments();
 
     if (!userPrompt && attachments.length === 0) return;
@@ -73,13 +73,13 @@ async function handleFormSubmit(event) {
         const attachmentsContent = attachments
             .map(file => `--- ATTACHMENT: ${file.name} ---\n${file.content}`)
             .join('\n\n');
-        userPrompt = userPrompt 
+        userPrompt = userPrompt
             ? `${userPrompt}\n\n${attachmentsContent}`
             : attachmentsContent;
     }
 
     const startTime = performance.now();
-    ui.clearPromptInput();
+    if (!quickActionPrompt) ui.clearPromptInput();
     state.clearAttachments();
     ui.clearAttachmentsUI();
     ui.toggleLoading(true);
@@ -165,7 +165,6 @@ function handleCancelClick() {
 
 async function submitQuickAction(promptText) {
     if (!promptText) return;
-    // Make sure we're in chat view
     ui.showChat();
     ui.dom.promptInput.value = promptText;
     await handleFormSubmit({ preventDefault: () => {} });
@@ -249,12 +248,18 @@ function bindLandingPageEvents() {
     // "Message" button → opens chat
     const openChatBtn = document.getElementById('open-chat-btn');
     if (openChatBtn) {
-        openChatBtn.addEventListener('click', navigateToChat);
+        openChatBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            navigateToChat();
+        });
     }
 
     // Self-service cards → open chat with prompt
     document.querySelectorAll('.service-card').forEach(card => {
-        card.addEventListener('click', () => {
+        card.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             const prompt = card.dataset.prompt;
             if (prompt) {
                 navigateToChat();
@@ -265,7 +270,9 @@ function bindLandingPageEvents() {
 
     // Category items → open chat with prompt
     document.querySelectorAll('.category-item').forEach(item => {
-        item.addEventListener('click', () => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             const prompt = item.dataset.prompt;
             if (prompt) {
                 navigateToChat();
@@ -276,7 +283,9 @@ function bindLandingPageEvents() {
 
     // FAQ items → open chat with prompt
     document.querySelectorAll('.faq-item').forEach(item => {
-        item.addEventListener('click', () => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             const prompt = item.dataset.prompt;
             if (prompt) {
                 navigateToChat();

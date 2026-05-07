@@ -50,7 +50,11 @@ export function setWelcomeState(isVisible) {
 export function bindQuickStartActions(onSelect) {
     if (!dom.quickStartGrid) return;
     dom.quickStartGrid.querySelectorAll('.quick-action-btn').forEach((button) => {
-        button.onclick = () => onSelect(button.dataset.prompt || button.textContent || '');
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onSelect(button.dataset.prompt || button.textContent || '');
+        });
     });
 }
 
@@ -124,7 +128,11 @@ export function renderInlineQuickReplies(anchorMessageElement, replies, onSelect
         button.type = 'button';
         button.className = 'quick-action-btn quick-reply-btn';
         button.textContent = replyText;
-        button.onclick = () => onSelect(replyText);
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onSelect(replyText);
+        });
         wrapper.appendChild(button);
     });
 
