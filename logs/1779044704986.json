@@ -1,0 +1,43 @@
+{
+  "id": "1779044704986",
+  "title": "Tell me about DIP verificat...",
+  "history": [
+    {
+      "role": "user",
+      "content": "Tell me about DIP verification testing"
+    },
+    {
+      "role": "assistant",
+      "content": "DIP (Decentralized Identity Provider) verification testing involves using a Substrate-based chain provider, such as KILT Peregrine, to bridge user identities to other connected chain consumers, like the Xcavate chain, in a trustless manner. Here's a brief overview of the process:\n\n1. **DIP Verification**: This is achieved through a Substrate pallet structure added to the consumer chain's runtime. The pallet performs an origin check in its configuration, allowing access to the DID (Decentralized Identifier) of the submitter.\n\n2. **Testing Steps**:\n   - **Clone DIP SDK**: Use the KILT Decentralized Identity Provider (DIP) protocol SDK.\n     ```bash\n     git clone https://github.com/XcavateBlockchain/dip-sdk-xcav\n     ```\n   - **Setup**: Configure the Relay, Provider, and Consumer RPCs.\n   - **Execute Testing Script**:\n     ```bash\n     cd dip-sdk-xcav\n     yarn install\n     yarn test:e2e:peregrine-provider\n     ```\n   - After executing the script, you can observe the balance transfer from a prefunded account to a new test account via the Xcavate explorer in Polkadot.js.\n\n3. **DID Creation**: Before verification, a DID must be created using a new account on the KILT Peregrine chain.\n\nThis process ensures that only verified DIDs can call certain functions, such as `list_object`, on the consumer chain.",
+      "responseTime": "9.40"
+    },
+    {
+      "role": "user",
+      "content": "Can you tell me about This section relates to the AI support agent and issue ticket system"
+    },
+    {
+      "role": "assistant",
+      "content": "I couldn't find this in the RealXmarket documentation. Please contact RealXmarket support for personalized assistance.",
+      "responseTime": "4.04"
+    },
+    {
+      "role": "user",
+      "content": "Can you tell me about the  AI support agent"
+    },
+    {
+      "role": "assistant",
+      "content": "I couldn't find this in the RealXmarket documentation. Please contact RealXmarket support for personalized assistance.",
+      "responseTime": "4.54"
+    },
+    {
+      "role": "user",
+      "content": "What is the standard user procedure?"
+    },
+    {
+      "role": "assistant",
+      "content": "The standard user procedure for the Xcavate Dapp involves several key steps:\n\n1. **Accessing the Application**: Users can access the Xcavate Dapp via a web browser or mobile device. All transactions require identity verification, and mobile connections can be made securely by scanning a QR code.\n\n2. **Creating an Account**:\n   - Users start by creating a new account, which includes setting up a self-custody account address and a password (6-20 characters).\n   - They select their account type, enter personal information, and proceed after reviewing regional regulatory documents.\n\n3. **Risk Warning & Questionnaire**:\n   - Users must accept a risk warning and complete a questionnaire to assess their suitability for property investment. Outcomes can be \"Pass,\" \"Margin Failure,\" or \"Fail,\" each with specific instructions.\n\n4. **KYC/AML & Liveness Verification**:\n   - This process is conducted through a third-party service, SumSub, to verify user identity.\n\n5. **Privacy, Terms & Agreement**:\n   - After passing KYC, users must accept various documents by reading and scrolling to the bottom of each PDF. Once signed, users are directed to their account dashboard.\n\n6. **Help and Support**:\n   - Users can access help by clicking the \"?\" icon, selecting pre-formatted questions, or typing their queries. If issues persist, users can create a support ticket for further assistance.\n\nThis procedure ensures a secure and compliant user experience on the Xcavate Dapp.",
+      "responseTime": "7.55"
+    }
+  ],
+  "model": "gpt-4o"
+}

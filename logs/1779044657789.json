@@ -1,0 +1,16 @@
+{
+  "id": "1779044657789",
+  "title": "Where can I see my transact...",
+  "history": [
+    {
+      "role": "user",
+      "content": "Where can I see my transaction history?"
+    },
+    {
+      "role": "assistant",
+      "content": "I couldn't find this in the RealXmarket documentation. Please contact RealXmarket support for personalized assistance.",
+      "responseTime": "11.13"
+    }
+  ],
+  "model": "gpt-4o"
+}
