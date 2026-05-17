@@ -5,7 +5,7 @@
 ### POST /api/chat
 Stream a chat response from the AI.
 
-**Request**:
+**Request:**
 ```json
 {
   "messages": [
@@ -16,7 +16,7 @@ Stream a chat response from the AI.
 }
 ```
 
-**Response**: Streaming NDJSON (newline-delimited JSON)
+**Response:** Streaming NDJSON (newline-delimited JSON)
 ```
 {"message": {"content": "To"}, "done": false}
 {"message": {"content": " reset"}, "done": false}
@@ -24,7 +24,7 @@ Stream a chat response from the AI.
 {"done": true}
 ```
 
-**Error Response**:
+**Error Response:**
 ```
 {"error": "Error message here", "done": true}
 ```
@@ -34,7 +34,7 @@ Stream a chat response from the AI.
 ### GET /api/chats
 List all saved chats.
 
-**Response**:
+**Response:**
 ```json
 [
   { "id": "1234567890", "title": "How to reset password..." },
@@ -47,7 +47,7 @@ List all saved chats.
 ### POST /api/chats
 Save a new chat or update an existing one.
 
-**Request**:
+**Request:**
 ```json
 {
   "id": "1234567890",
@@ -57,7 +57,7 @@ Save a new chat or update an existing one.
 }
 ```
 
-**Response**:
+**Response:**
 ```json
 { "success": true, "id": "1234567890" }
 ```
@@ -67,14 +67,14 @@ Save a new chat or update an existing one.
 ### GET /api/chats/<chat_id>
 Get a specific chat by ID.
 
-**Response**: Full chat data JSON
+**Response:** Full chat data JSON
 
 ---
 
 ### DELETE /api/chats/<chat_id>
 Delete a chat.
 
-**Response**:
+**Response:**
 ```json
 { "success": true }
 ```
@@ -82,11 +82,11 @@ Delete a chat.
 ---
 
 ### GET /api/mcp-status
-Check MCP (RealXmarket docs) connection status.
+Check documentation search connection status.
 
-**Response**:
+**Response:**
 ```json
-{ "available": true, "pages": 42 }
+{ "available": true, "pages": 113, "provider": "RealXmarket Docs" }
 // or
 { "available": false, "reason": "Index not loaded" }
 ```
@@ -96,16 +96,16 @@ Check MCP (RealXmarket docs) connection status.
 ### POST /api/web-search
 Search RealXmarket documentation directly.
 
-**Request**:
+**Request:**
 ```json
 { "query": "How to complete KYC" }
 ```
 
-**Response**:
+**Response:**
 ```json
 {
   "query": "How to complete KYC",
-  "results": "Documentation results..."
+  "results": "From RealXmarket documentation:\n\n### KYC Verification\nSource: https://doc-hub.xcavate.io/...\n\n[Documentation content...]"
 }
 ```
 
@@ -167,7 +167,7 @@ renderInlineQuickReplies(anchorElement: HTMLElement, replies: string[], onSelect
 bindQuickStartActions(onSelect: (prompt: string) => void): void
 showLanding(): void
 showChat(): void
-updateTokenUI(tokenCount: number, maxTokens: number): void
+updateTokenCounter(count: number, max: number): void
 toggleLoading(isLoading: boolean): void
 ```
 
@@ -183,3 +183,22 @@ handleFormSubmit(event: Event): Promise<void>
 submitQuickAction(promptText: string): Promise<void>
 generateQuickReplies(lastUserPrompt: string, lastAssistantResponse: string): string[]
 ```
+
+---
+
+## Error Codes
+
+| Status | Code | Description |
+|--------|------|-------------|
+| 400 | MISSING_CHAT_ID | Chat ID required for save operation |
+| 404 | CHAT_NOT_FOUND | Specified chat ID does not exist |
+| 500 | INTERNAL_ERROR | Server-side error occurred |
+
+---
+
+## Rate Limits
+
+Currently no rate limiting is implemented. For production use, consider adding:
+- Request throttling per IP
+- Maximum requests per minute
+- Context window size limits

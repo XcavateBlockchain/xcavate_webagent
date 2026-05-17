@@ -128,3 +128,19 @@ Three locations:
 2. Confirm dialog
 3. DELETE request to `/api/chats/<id>`
 4. Remove from UI, reload list
+
+---
+
+## External Dependencies
+
+### JavaScript (CDN)
+- **marked** - Markdown rendering
+- **DOMPurify** - HTML sanitization (XSS protection)
+
+### Python Packages
+- **Flask** - Web framework
+- **langchain** - LLM orchestration
+- **langgraph** - Agent workflows
+- **langchain-openai** - OpenAI integration
+- **requests** - HTTP client
+- **xmltodict** - XML parsing (sitemap)

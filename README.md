@@ -1,13 +1,12 @@
 <p align="center">
-    <img src="ollapy-icon.png" alt="xCavate Web Assistent Logo" width="180" />
+    <img src="ollapy-icon.png" alt="RealXmarket Web Assistant Logo" width="180" />
 </p>
 
-<h1 align="center">xCavate Web Assistent <br>Private, Self-Hosted Interface for Ollama</h1>
+<h1 align="center">RealXmarket Web Assistant<br>AI Customer Support with Documentation Search</h1>
 
+[![Python](https://img.shields.io/badge/Python-3.x-blue.svg)](https://www.python.org/) [![Flask](https://img.shields.io/badge/Flask-3.x-black.svg)](https://flask.palletsprojects.com/) [![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow.svg)](https://developer.mozilla.org/en-US/docs/Web/JavaScript) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-[![Python](https://img.shields.io/badge/Python-3.x-blue.svg)](https://www.python.org/) [![Flask](https://img.shields.io/badge/Flask-2.x-black.svg)](https://flask.palletsprojects.com/) [![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow.svg)](https://developer.mozilla.org/en-US/docs/Web/JavaScript) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-
-xCavate Web Assistent is a sleek, self-contained web interface for interacting with local language models through [Ollama](https://ollama.com/). It provides a private and secure environment for your conversations, running entirely on your local machine. With a lightweight Python/Flask backend and a vanilla JavaScript frontend, xCavate Web Assistent is designed for simplicity, privacy, and hackability.
+RealXmarket Web Assistant is a customer support chat interface for RealXmarket, built with a Flask backend and vanilla JavaScript frontend. The AI uses OpenAI's GPT-4o and automatically searches the official RealXmarket documentation to provide accurate, up-to-date answers.
 
 ## 📖 Table of Contents
 
@@ -15,132 +14,225 @@ xCavate Web Assistent is a sleek, self-contained web interface for interacting w
 - [Architecture](#-architecture)
 - [Getting Started](#-getting-started)
   - [Prerequisites](#prerequisites)
-  - [Installation & Usage](#installation--usage)
+  - [Installation](#installation)
+  - [Running the Server](#running-the-server)
 - [Configuration](#-configuration)
 - [API Endpoints](#-api-endpoints)
+- [Testing](#-testing)
+- [Documentation](#-documentation)
 - [Contributing](#-contributing)
 
 ---
 
 ## ✨ Features
 
-*   **💻 Desktop Application:** xCavate Web Assistent can now be run as a standalone desktop application using Electron, providing a native-like experience.
-*   **🔒 Absolute Privacy:** All interactions happen on your local machine. No data is ever sent to third-party servers.
-*   **💾 Chat History:** Conversations are automatically saved as JSON files in a `logs` directory, allowing for easy access, backup, and management.
-*   **🤖 Model Selection:** Seamlessly switch between different Ollama models using a dropdown menu in the user interface.
-*   **✍️ Markdown Rendering:** Enjoy beautifully formatted AI responses, including lists, tables, and code blocks.
-*   **💨 Real-Time Streaming:** Experience interactive conversations with the AI's responses streamed in real-time.
-*   **📊 Token Counter:** Monitor the context size of your conversations with a progress bar and token counter.
-*   **⏱️ Performance Metrics:** Track the generation time for each AI response.
-*   **📈 System Monitoring:** Real-time display of CPU and RAM usage within the Electron application.
-*   **🚀 Integrated Backend Startup:** The Electron application now automatically manages the startup and shutdown of the Flask backend server.
-*   **🛑 Cancel Responses:** Interrupt the AI's response generation at any time.
-*   **🛡️ Built-in Security:** Client-side HTML sanitization using `DOMPurify` to prevent XSS attacks.
+*   **🤖 AI-Powered Support:** Uses OpenAI GPT-4o to understand and respond to user queries
+*   **📚 Automatic Documentation Search:** AI automatically searches RealXmarket documentation when needed
+*   **💬 Real-Time Streaming:** Responses stream token-by-token for interactive conversations
+*   **💾 Chat History:** All conversations are automatically saved as JSON files
+*   **🔍 Built-in Search:** Direct web search endpoint for documentation queries
+*   **✍️ Markdown Rendering:** Beautifully formatted AI responses with code blocks, tables, and lists
+*   **🛡️ Security:** Client-side HTML sanitization using DOMPurify
+*   **📱 Responsive Design:** Works on desktop and mobile browsers
+*   **🔄 Quick Actions:** Pre-defined buttons for common support topics
+*   **💡 Smart Follow-ups:** AI suggests follow-up questions after each response
+
+---
 
 ## 🖼️ Screenshots
 
 <p align="center">
-    <img src="screenshot.png" alt="xCavate Web Assistent Screenshot" width="80%" />
+    <img src="screenshot.png" alt="RealXmarket Web Assistant Screenshot" width="80%" />
 </p>
+
+---
 
 ## 🛠️ Architecture
 
-xCavate Web Assistent's architecture is composed of two main components:
+The application consists of a Python Flask backend and a vanilla JavaScript frontend:
 
-1.  **`server.py` (Backend):** A lightweight Flask server that serves the main `index.html` file and provides a REST API for managing chat logs (CRUD operations).
-2.  **`index.html` & JavaScript modules (Frontend):** A vanilla JavaScript application that communicates directly with the Ollama server for AI interactions and with the Flask server for chat history management.
-
-```mermaid
-graph TD
-    A[User 👨‍💻] -- Interacts with --> B[Browser: index.html]
-    B -- "API Requests (Save/Load)" --> C[Backend Flask: server.py]
-    C -- "Reads/Writes" --> D["Log Files<br/>(logs/*.json) 📝"]
-    B -- "LLM Requests (Prompt)" --> E[Ollama Server 🧠]
-    E -- "Streaming Response" --> B
 ```
+┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
+│   Browser       │────▶│   Flask Server   │────▶│   OpenAI API    │
+│   (index.html)  │◀────│   (server.py)    │◀────│   (gpt-4o)      │
+│                 │     │                  │     │                 │
+│   js/app.js     │     │ langgraph_agent  │────▶│ realxmarket     │
+│   js/api.js     │     │                  │     │ docs (tool)     │
+└─────────────────┘     └──────────────────┘     └─────────────────┘
+```
+
+**Key Components:**
+
+1.  **`server.py`** - Flask backend serving static files and REST API endpoints
+2.  **`langgraph_agent.py`** - Agent logic with tool integration for documentation search
+3.  **`realxmarket_docs.py`** - Documentation search client (indexes doc-hub.xcavate.io)
+4.  **`js/*.js`** - Frontend modules (app, api, state, ui, config)
+
+---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-*   [Python 3](https://www.python.org/downloads/) and `pip`.
-*   [Ollama](https://ollama.com/) installed and running.
-*   At least one Ollama model downloaded (e.g., `ollama pull gemma3`).
+*   Python 3.10+ and `pip`
+*   OpenAI API key with access to GPT-4o
 
-### Installation & Usage
+### Installation
 
 1.  **Clone the repository:**
 
     ```bash
-    git clone https://github.com/your-username/xcavate-web-assistent.git
-    cd xcavate-web-assistent
+    git clone https://github.com/your-username/xcavate-web-assistant.git
+    cd xcavate-web-assistant
     ```
-2.  **Run the start script:**
 
-    The `start.sh` script automates the setup process, including installing dependencies and launching the necessary servers.
+2.  **Create a virtual environment:**
 
     ```bash
-    ./start.sh
+    python -m venv .venv
+    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
     ```
 
-    This will:
-    *   Install the required Python packages from `requirements.txt`.
-    *   Start the Ollama server in the background.
-    *   Start the Flask backend server.
-    *   Open the xCavate Web Assistent web interface in your default browser.
-
-3.  **Start chatting!**
-
-    You can now interact with your local language models through the xCavate Web Assistent interface.
-
-### Desktop Application (Electron)
-
-xCavate Web Assistent can also be run as a desktop application using Electron, providing a native-like experience.
-
-1.  **Install Node.js dependencies:**
+3.  **Install dependencies:**
 
     ```bash
-    npm install
+    pip install -r requirements.txt
     ```
 
-2.  **Start the Electron application:**
+### Running the Server
+
+1.  **Set your OpenAI API key:**
 
     ```bash
-    npm start
+    export OPENAI_API_KEY="sk-your-api-key-here"
     ```
 
-    This will launch the xCavate Web Assistent desktop application. Ensure your Ollama server is running in the background.
+2.  **Start the server:**
 
-    **Note:** The Electron application currently expects the Flask backend to be running separately. You can start it using `./start.sh` (which also starts Ollama) or by manually running `python server.py` in a separate terminal.
+    ```bash
+    python server.py [port]  # defaults to port 8001
+    ```
 
+3.  **Open in browser:**
 
+    Navigate to `http://localhost:8001`
+
+---
 
 ## ⚙️ Configuration
 
-To customize the default settings, such as the default Ollama model or the Ollama server URL, you can modify the `js/config.js` file:
+### Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `OPENAI_API_KEY` | Yes | Your OpenAI API key |
+
+### Default Settings
+
+Edit `js/config.js` to customize:
 
 ```javascript
 // js/config.js
-export const DEFAULT_OLLAMA_MODEL = "gemma3"; // Set your preferred default model
-export const OLLAMA_BASE_URL = "http://localhost:11434"; // Modify if your Ollama server runs on a different URL
+export const DEFAULT_MODEL = "gpt-4o";
+export const MAX_CONTEXT_WINDOW = 8192;
 ```
+
+---
 
 ## 🤓 API Endpoints
 
-The Flask backend exposes a simple REST API for managing chat logs:
+### Chat & Conversation
 
-*   `GET /api/chats`: Retrieves a list of all saved chats.
-*   `GET /api/chats/<chat_id>`: Retrieves the content of a specific chat.
-*   `POST /api/chats`: Saves or updates a chat.
-*   `DELETE /api/chats/<chat_id>`: Deletes a specific chat.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/chat` | Stream AI response (NDJSON) |
+| `GET` | `/api/chats` | List all saved chats |
+| `POST` | `/api/chats` | Save or update a chat |
+| `GET` | `/api/chats/<id>` | Get a specific chat |
+| `DELETE` | `/api/chats/<id>` | Delete a chat |
+
+### Documentation Search
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/mcp-status` | Check docs connection status |
+| `POST` | `/api/web-search` | Search documentation directly |
+
+See [`docs/api-reference.md`](docs/api-reference.md) for detailed request/response formats.
+
+---
+
+## 🧪 Testing
+
+Run the unit test suite:
+
+```bash
+# Activate virtual environment
+source .venv/bin/activate
+
+# Install pytest if not already installed
+pip install pytest
+
+# Run all tests
+pytest tests/ -v
+
+# Run specific test file
+pytest tests/test_realxmarket_docs.py -v
+
+# Run with coverage report
+pytest tests/ --cov=. --cov-report=html
+```
+
+**Test Coverage:**
+
+-   `tests/test_realxmarket_docs.py` - Documentation search module (25 tests)
+-   `tests/test_server.py` - Flask API endpoints (17 tests)
+-   `tests/test_langgraph_agent.py` - Agent logic and tools (12 tests)
+
+---
+
+## 📚 Documentation
+
+Detailed documentation is available in the `docs/` directory:
+
+| Document | Description |
+|----------|-------------|
+| [`docs/project-overview.md`](docs/project-overview.md) | High-level project overview and tech stack |
+| [`docs/architecture.md`](docs/architecture.md) | Detailed architecture and message flows |
+| [`docs/api-reference.md`](docs/api-reference.md) | Complete API endpoint reference |
+| [`docs/components.md`](docs/components.md) | UI components and data models |
+| [`docs/development-guide.md`](docs/development-guide.md) | Guide for adding features |
+| [`docs/system-prompt.md`](docs/system-prompt.md) | System prompt reference and customization |
+
+---
 
 ## 🤝 Contributing
 
-Contributions are welcome! If you have any ideas for improvements or new features, feel free to fork the repository, make your changes, and submit a pull request.
+Contributions are welcome! If you have ideas for improvements:
 
-Some ideas for contributions include:
+1.  Fork the repository
+2.  Create a feature branch
+3.  Make your changes
+4.  Submit a pull request
 
-*   Implementing a more advanced chat history with folders and search functionality.
-*   Adding support for different themes (e.g., light, dark, cyberpunk).
-*   Adding the ability to export chats as Markdown or PDF files.
+**Areas for contribution:**
 
+-   Adding new AI tools/capabilities
+-   Enhancing the UI/UX
+-   Improving documentation search accuracy
+-   Adding chat export functionality (Markdown/PDF)
+-   Implementing dark mode themes
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
+---
+
+## 🔗 Links
+
+-   **RealXmarket Docs:** https://doc-hub.xcavate.io
+-   **Issue Tracker:** https://github.com/your-username/xcavate-web-assistant/issues
+-   **OpenAI:** https://platform.openai.com

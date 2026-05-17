@@ -1,58 +1,41 @@
-# RealXmarket Web Assistant Documentation
+# RealXmarket Web Assistant - Documentation
 
-Quick reference for working with this project.
+This directory contains comprehensive documentation for the RealXmarket Web Assistant project.
 
-## Start Here
+## Documentation Index
 
-- **[project-overview.md](./project-overview.md)** - What the project is, tech stack, architecture overview
-- **[architecture.md](./architecture.md)** - Detailed request flow, file purposes, message formats
-- **[api-reference.md](./api-reference.md)** - All API endpoints and frontend module signatures
-- **[development-guide.md](./development-guide.md)** - How to add features, debug, common tasks
-- **[components.md](./components.md)** - UI components, data models, event flows
-- **[system-prompt.md](./system-prompt.md)** - Current system prompt and how to modify it
+| Document | Description |
+|----------|-------------|
+| [project-overview.md](project-overview.md) | High-level overview, tech stack, and architecture diagram |
+| [architecture.md](architecture.md) | Detailed backend/frontend architecture and data flows |
+| [api-reference.md](api-reference.md) | Complete API endpoint reference with examples |
+| [components.md](components.md) | UI components, data models, and CSS classes |
+| [development-guide.md](development-guide.md) | Guide for adding features and common development tasks |
+| [system-prompt.md](system-prompt.md) | System prompt reference and customization guide |
+| [testing.md](testing.md) | Testing guide, test structure, and best practices |
 
-## Quick Commands
+## Quick Links
 
-```bash
-# Run the server
-python server.py  # defaults to port 8001
+-   **[Getting Started](../README.md#getting-started)** - Install and run the project
+-   **[API Endpoints](../README.md#api-endpoints)** - Overview of available endpoints
+-   **[Testing](../README.md#testing)** - Run the unit test suite
+-   **[Contributing](../README.md#contributing)** - How to contribute to the project
 
-# Check tool logs
-# Look at terminal output for [TOOL CALL] and [TOOL RESPONSE]
+## For Developers
 
-# View chat history
-ls logs/
-```
+If you're contributing to the project, start with:
 
-## Environment
+1. **[project-overview.md](project-overview.md)** - Understand what the project does
+2. **[architecture.md](architecture.md)** - Learn how it's built
+3. **[development-guide.md](development-guide.md)** - Guide for making changes
+4. **[testing.md](testing.md)** - How to write and run tests
 
-```bash
-export OPENAI_API_KEY="sk-..."
-```
+## For Maintainers
 
-## Key Files
+-   **[api-reference.md](api-reference.md)** - Document API changes
+-   **[system-prompt.md](system-prompt.md)** - Update AI behavior guidelines
+-   **[components.md](components.md)** - Reference for UI modifications
 
-| File | Edit When... |
-|------|--------------|
-| `langgraph_agent.py` | Adding tools, changing agent logic |
-| `server.py` | Adding API endpoints, Flask config |
-| `js/app.js` | Adding UI interactions, event handlers |
-| `js/api.js` | Changing API calls, system prompt |
-| `js/config.js` | Updating model, context size |
-| `index.html` | Adding new UI elements |
+---
 
-## Troubleshooting
-
-**Streaming not working?**
-- Check `stream_mode="tokens"` in langgraph_agent.py
-- Verify OpenAI API key is set
-- Check browser console for errors
-
-**Tool not being called?**
-- Verify tool is bound to LLM with `bind_tools()`
-- Check system prompt instructs tool usage
-- Look for `[TOOL CALL]` in server console
-
-**Messages duplicated?**
-- Check event handlers have `preventDefault()` and `stopPropagation()`
-- Verify quick actions don't trigger multiple times
+**Last Updated:** 2026-05-17

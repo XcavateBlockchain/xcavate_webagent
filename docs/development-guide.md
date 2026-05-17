@@ -5,6 +5,8 @@
 1. Define the tool function with `@tool` decorator in `langgraph_agent.py`:
 
 ```python
+from langchain_core.tools import tool
+
 @tool
 def my_new_tool(query: str) -> str:
     """Description of what the tool does. The LLM uses this to decide when to call it."""
@@ -34,13 +36,30 @@ if func_name == "my_new_tool":
 
 ## Modifying the System Prompt
 
-Edit `SYSTEM_PROMPT` in `langgraph_agent.py` AND `SYSTEM_PROMPT` constant in `js/api.js`. They should match.
+Edit `SYSTEM_PROMPT` in `langgraph_agent.py`. The prompt controls AI behavior and tool usage.
 
 **Important**: The system prompt controls AI behavior. Be specific about:
 - What the AI should/w shouldn't do
 - When to use tools
 - Tone and style guidelines
 - Error handling instructions
+
+### Example Modifications
+
+**To change tone:**
+Adjust "friendly, professional tone" to desired style (e.g., "casual and conversational", "formal and technical")
+
+**To add capabilities:**
+Add new guidelines like:
+- "When users ask about troubleshooting, provide step-by-step instructions"
+- "Include relevant links from the documentation when possible"
+
+**To restrict behavior:**
+Add negative constraints:
+- "Do not provide financial or investment advice"
+- "Do not speculate about future features or roadmaps"
+
+See [`system-prompt.md`](system-prompt.md) for full reference.
 
 ---
 
@@ -50,7 +69,7 @@ Edit `SYSTEM_PROMPT` in `langgraph_agent.py` AND `SYSTEM_PROMPT` constant in `js
 2. Export the element in `js/ui.js` `dom` object
 3. Add event handlers in `js/app.js` or bind them in `init()`
 
-**Example - Adding a settings button**:
+**Example - Adding a settings button:**
 
 ```html
 <!-- index.html -->
@@ -111,8 +130,33 @@ Edit `estimateTokens()` and `updateTotalTokenCount()` in `js/app.js`.
 
 ## Testing
 
-1. **Manual testing**: Use the UI to test common flows
-2. **Tool testing**: Check server console for tool call/response logs
+### Running Tests
+
+```bash
+# Activate virtual environment
+source .venv/bin/activate
+
+# Run all tests
+pytest tests/ -v
+
+# Run specific test file
+pytest tests/test_realxmarket_docs.py -v
+
+# Run with coverage
+pytest tests/ --cov=. --cov-report=html
+```
+
+### Test Structure
+
+-   `tests/test_realxmarket_docs.py` - Documentation search module tests
+-   `tests/test_server.py` - Flask API endpoint tests
+-   `tests/test_langgraph_agent.py` - Agent logic and tool tests
+-   `tests/conftest.py` - Shared fixtures and mocks
+
+### Manual Testing
+
+1. **Common flows**: Use the UI to test chat creation, loading, deletion
+2. **Tool calls**: Check server console for tool call/response logs
 3. **Streaming**: Verify tokens appear gradually (not all at once)
 4. **Error handling**: Test with invalid API key, network issues
 
@@ -121,11 +165,12 @@ Edit `estimateTokens()` and `updateTotalTokenCount()` in `js/app.js`.
 ## Dependencies
 
 **Python** (`requirements.txt`):
-- `Flask` - Web server
-- `langchain` - LLM framework
+- `Flask` - Web framework
+- `langchain` - LLM orchestration
 - `langgraph` - Agent workflows
 - `langchain-openai` - OpenAI integration
-- `realxmarket_docs` - Documentation search (external package)
+- `requests` - HTTP client
+- `xmltodict` - XML parsing
 
 **JavaScript** (no npm, vanilla JS):
 - External CDN libs: `marked`, `DOMPurify`
@@ -135,22 +180,40 @@ Edit `estimateTokens()` and `updateTotalTokenCount()` in `js/app.js`.
 ## File Structure
 
 ```
-ollapy/
+xcavate-web-assistant/
 ├── server.py              # Flask backend
-├── langgraph_agent.py     # Agent logic
-├── requirements.txt       # Python deps
-├── index.html            # Main HTML
+├── langgraph_agent.py     # Agent logic with LangGraph
+├── realxmarket_docs.py    # Documentation search client
+├── requirements.txt       # Python dependencies
+├── index.html            # Main HTML (SPA)
 ├── css/
 │   └── style.css         # Styles
 ├── js/
-│   ├── app.js            # Main app logic
-│   ├── api.js            # API client
-│   ├── config.js         # Config constants
+│   ├── app.js            # Main application logic
+│   ├── api.js            # API client & streaming
+│   ├── config.js         # Configuration constants
 │   ├── state.js          # State management
-│   └── ui.js             # UI helpers
-└── docs/                 # This documentation
+│   └── ui.js             # UI rendering helpers
+├── logs/                 # Chat history storage
+├── tests/                # Unit test suite
+│   ├── conftest.py
+│   ├── test_server.py
+│   ├── test_langgraph_agent.py
+│   └── test_realxmarket_docs.py
+└── docs/                 # Documentation
     ├── project-overview.md
     ├── architecture.md
     ├── api-reference.md
-    └── development-guide.md
+    ├── components.md
+    ├── development-guide.md
+    └── system-prompt.md
 ```
+
+---
+
+## Git Workflow
+
+1. Create feature branch: `git checkout -b feature/my-feature`
+2. Make changes and commit: `git commit -am "Add my feature"`
+3. Run tests: `pytest tests/ -v`
+4. Push and create PR: `git push origin feature/my-feature`
