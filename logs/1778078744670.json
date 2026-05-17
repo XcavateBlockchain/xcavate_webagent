@@ -1,0 +1,16 @@
+{
+  "id": "1778078744670",
+  "title": "I need help with a failed t...",
+  "history": [
+    {
+      "role": "user",
+      "content": "I need help with a failed transaction"
+    },
+    {
+      "role": "assistant",
+      "content": "<search>failed transactions realxmarket</search wait>\n\n**\n\nPlease resultsIf for... a transaction fails, you can view the \n\n** details Failed ofResolution of Transactions the failure in your account's transaction history.\n\nTo resolve a failed transaction, follow these steps:\n\n1. Log into your RealXmarket account.\n2. Go to the \"Transactions\" section.\n3. Locate the failed transaction and click on it for more information.\n4. If the issue was with payment processing, you can try resubmitting the payment or contact our support team for assistance.\n\nI couldn't find specific instructions on how to manually cancel a failed transaction in the RealXmarket documentation. However, I can guide you through the steps outlined above and help you troubleshoot further if needed.",
+      "responseTime": "32.95"
+    }
+  ],
+  "model": "llama3.1"
+}

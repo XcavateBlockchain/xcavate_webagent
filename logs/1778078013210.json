@@ -1,0 +1,16 @@
+{
+  "id": "1778078013210",
+  "title": "How can I recover my account?",
+  "history": [
+    {
+      "role": "user",
+      "content": "How can I recover my account?"
+    },
+    {
+      "role": "assistant",
+      "content": "<search>account recovery</search>\n\n meAccording know to the and documentation I,'ll you do can my recover best your to account assist by following you these. steps",
+      "responseTime": "29.98"
+    }
+  ],
+  "model": "llama3.1"
+}

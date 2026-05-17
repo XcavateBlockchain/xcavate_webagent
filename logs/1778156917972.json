@@ -1,0 +1,16 @@
+{
+  "id": "1778156917972",
+  "title": "What is KYC and how do I co...",
+  "history": [
+    {
+      "role": "user",
+      "content": "What is KYC and how do I complete it?"
+    },
+    {
+      "role": "assistant",
+      "content": "Error: Error code: 400 - {'error': {'message': \"Invalid parameter: messages with role 'tool' must be a response to a preceeding message with 'tool_calls'.\", 'type': 'invalid_request_error', 'param': 'messages.[2].role', 'code': None}}",
+      "responseTime": "4.55"
+    }
+  ],
+  "model": "gpt-4o"
+}

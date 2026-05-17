@@ -1,0 +1,16 @@
+{
+  "id": "1777038727735",
+  "title": "Hi, can you write 2 bulletp...",
+  "history": [
+    {
+      "role": "user",
+      "content": "Hi, can you write 2 bulletpoint with interesting food?"
+    },
+    {
+      "role": "assistant",
+      "content": "Okay, here are two bullet points highlighting interesting foods:\n\n*   **Natty Mackerel:** This traditional Scottish dish involves mackerel that has been fermented in its own brine – no added salt! It develops a powerfully tangy, umami-rich flavor and is often served with potatoes and onions.\n\n*   **Hákarl (Fermented Shark):** A staple of Icelandic cuisine, Hákarl is Greenland shark (or basking shark) that has been buried underground for weeks to cure, then hung to dry for months. It has a notoriously pungent ammonia-rich smell and taste – a truly unique culinary experience! \n\nWould you like me to provide more options, perhaps focusing on a particular cuisine or type of food?",
+      "responseTime": "5.86"
+    }
+  ],
+  "model": "gemma3:latest"
+}

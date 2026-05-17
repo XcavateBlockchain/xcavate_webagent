@@ -1,0 +1,16 @@
+{
+  "id": "1777036276122",
+  "title": "Ahojky jak se máš?",
+  "history": [
+    {
+      "role": "user",
+      "content": "Ahojky jak se máš?"
+    },
+    {
+      "role": "assistant",
+      "content": "Ahoj! Mám se dobře, děkuji za optání. Jak se máš ty? Co máš dnes v plánu?\n",
+      "responseTime": "7.28"
+    }
+  ],
+  "model": "gemma3:latest"
+}

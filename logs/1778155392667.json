@@ -1,0 +1,16 @@
+{
+  "id": "1778155392667",
+  "title": "How can I recover my account?",
+  "history": [
+    {
+      "role": "user",
+      "content": "How can I recover my account?"
+    },
+    {
+      "role": "assistant",
+      "content": "Error: No module named 'langchain_openai'",
+      "responseTime": "1.09"
+    }
+  ],
+  "model": "gpt-4o"
+}

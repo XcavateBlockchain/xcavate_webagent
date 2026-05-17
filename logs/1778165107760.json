@@ -1,0 +1,16 @@
+{
+  "id": "1778165107760",
+  "title": "How can I change my email?",
+  "history": [
+    {
+      "role": "user",
+      "content": "How can I change my email?"
+    },
+    {
+      "role": "assistant",
+      "content": "I couldn't find this in the RealXmarket documentation. Please contact RealXmarket support for personalized assistance regarding changing your email.",
+      "responseTime": "3.05"
+    }
+  ],
+  "model": "gpt-4o"
+}

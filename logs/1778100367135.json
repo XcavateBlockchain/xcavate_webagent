@@ -1,0 +1,34 @@
+{
+  "id": "1778100367135",
+  "title": "How can I recover my account?",
+  "history": [
+    {
+      "role": "user",
+      "content": "How can I recover my account?"
+    },
+    {
+      "role": "assistant",
+      "content": "How can I recover my account?",
+      "responseTime": "2.34"
+    },
+    {
+      "role": "user",
+      "content": "Reset My Account"
+    },
+    {
+      "role": "assistant",
+      "content": "Reset My Account",
+      "responseTime": "0.42"
+    },
+    {
+      "role": "user",
+      "content": "Contact Support"
+    },
+    {
+      "role": "assistant",
+      "content": "Contact Support",
+      "responseTime": "0.13"
+    }
+  ],
+  "model": "llama3.1"
+}

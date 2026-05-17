@@ -1,0 +1,25 @@
+{
+  "id": "1778158617675",
+  "title": "What is KYC and how do I co...",
+  "history": [
+    {
+      "role": "user",
+      "content": "What is KYC and how do I complete it?"
+    },
+    {
+      "role": "assistant",
+      "content": "KYC, or Know Your Customer, is a process used to verify the identity of users on the RealXmarket platform. Here's how you can complete the KYC process as an investor:\n\n1. **Log In**: Access your RealXmarket account and navigate to the KYC Verification section.\n\n2. **Upload Documents**:\n   - Provide a government-issued ID, such as a passport, driver’s license, or ID card.\n   - Submit proof of address, like a utility bill or bank statement.\n\n3. **Liveness Check**: Complete the liveness or facial recognition step to verify your identity.\n\n4. **KYC Questionnaire**: If prompted, fill out the KYC Questionnaire, which may include questions about the source of your funds.\n\n5. **Await Verification**: After submission, wait for a status update. Your application will be marked as Approved, Rejected, or Pending.\n\n6. **Re-submission**: If your application is rejected, follow the prompts to correct any issues and re-submit your documents.\n\nFor more detailed guidance, you can refer to the [Investors KYC Verification guide](https://doc-hub.xcavate.io/applications/xcavate-dapp/realxmarket-tester-guide/sumsub-kyc-kyb/step-by-step-guides/investors-kyc-verification).",
+      "responseTime": "8.42"
+    },
+    {
+      "role": "user",
+      "content": "Contact Support"
+    },
+    {
+      "role": "assistant",
+      "content": "To contact RealXmarket support for personalized assistance, please visit the RealXmarket website and look for the \"Contact Us\" or \"Support\" section. There, you should find options to reach out via email, live chat, or a support ticket system. This will connect you directly with a support representative who can help with your specific issue.",
+      "responseTime": "4.16"
+    }
+  ],
+  "model": "gpt-4o"
+}

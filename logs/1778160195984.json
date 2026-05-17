@@ -1,0 +1,16 @@
+{
+  "id": "1778160195984",
+  "title": "I need help with a failed t...",
+  "history": [
+    {
+      "role": "user",
+      "content": "I need help with a failed transaction"
+    },
+    {
+      "role": "assistant",
+      "content": "I couldn't find this in the RealXmarket documentation. Please contact RealXmarket support for personalized assistance. They will be able to help you resolve the issue with your failed transaction.",
+      "responseTime": "3.62"
+    }
+  ],
+  "model": "gpt-4o"
+}

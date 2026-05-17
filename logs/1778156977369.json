@@ -1,0 +1,52 @@
+{
+  "id": "1778156977369",
+  "title": "What is KYC and how do I co...",
+  "history": [
+    {
+      "role": "user",
+      "content": "What is KYC and how do I complete it?"
+    },
+    {
+      "role": "assistant",
+      "content": "KYC, or Know Your Customer, is a process used by RealXmarket to verify the identity of its users. Here's how you can complete the KYC process as an investor on RealXmarket:\n\n1. **Log In**: Access your RealXmarket account and select the KYC Verification option.\n\n2. **Upload Documents**:\n   - Provide a government-issued ID, such as a passport, driver’s license, or ID card.\n   - Submit proof of address, like a utility bill or bank statement.\n\n3. **Liveness Check**: Complete the liveness or facial recognition step to verify your identity.\n\n4. **KYC Questionnaire**: If prompted, fill out the KYC Questionnaire, which may include questions about the source of your funds.\n\n5. **Await Verification**: After submission, wait for a status update. Your application will be marked as Approved, Rejected, or Pending.\n\n6. **Re-submission**: If your application is rejected, follow the prompts to re-submit the necessary documents.\n\nFor more detailed guidance, you can refer to the [Investors KYC Verification guide](https://doc-hub.xcavate.io/applications/xcavate-dapp/realxmarket-tester-guide/sumsub-kyc-kyb/step-by-step-guides/investors-kyc-verification).",
+      "responseTime": "6.97"
+    },
+    {
+      "role": "user",
+      "content": "Reset My Account"
+    },
+    {
+      "role": "assistant",
+      "content": "I couldn't find specific instructions for resetting your account in the RealXmarket documentation. Please contact RealXmarket support for personalized assistance with resetting your account.",
+      "responseTime": "3.85"
+    },
+    {
+      "role": "user",
+      "content": "Contact Support"
+    },
+    {
+      "role": "assistant",
+      "content": "I couldn't find specific contact information for RealXmarket support in the documentation. Please visit the RealXmarket website and look for their support or contact section to get in touch with their customer service team for assistance.",
+      "responseTime": "3.14"
+    },
+    {
+      "role": "user",
+      "content": "Create Support Ticket"
+    },
+    {
+      "role": "assistant",
+      "content": "I couldn't find specific instructions for creating a support ticket in the RealXmarket documentation. Please visit the RealXmarket website and navigate to their support or help section to find options for creating a support ticket or contacting their support team directly.",
+      "responseTime": "4.95"
+    },
+    {
+      "role": "user",
+      "content": "What are the requirements for the mobile app?"
+    },
+    {
+      "role": "assistant",
+      "content": "The RealXmarket mobile app has specific system requirements for both Android and iOS devices:\n\n### Android App Requirements\n- **Operating System**: Android 10 or above is required. For best compatibility and performance, targeting Android 13+ is recommended. New apps and updates submitted after August 31, 2025, must target Android 15 (API level 35).\n- **RAM**: Minimum of 4GB is recommended; devices with lower RAM may experience performance issues.\n- **Processor**: Any modern quad-core CPU or better.\n- **Screen**: Over 5 inches for an optimal experience.\n\n### iOS App Requirements\n- **Operating System**: iOS 17 or newer is increasingly required. Many major apps now require iOS 17 or above to install and receive updates. As of April 2025, all new iOS apps and updates must be built with the iOS 18 SDK.\n- **Device**: iPhone XR or newer. For best longevity, the iPhone 13 lineup or newer is recommended, as earlier models may soon be phased out of OS support.\n- **RAM**: Minimum of 3GB is recommended for a smooth experience.\n\nThese requirements ensure that the app runs smoothly and complies with the latest Google Play and App Store guidelines.",
+      "responseTime": "7.98"
+    }
+  ],
+  "model": "gpt-4o"
+}

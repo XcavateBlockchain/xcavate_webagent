@@ -1,0 +1,16 @@
+{
+  "id": "1778155807665",
+  "title": "How can I recover my account?",
+  "history": [
+    {
+      "role": "user",
+      "content": "How can I recover my account?"
+    },
+    {
+      "role": "assistant",
+      "content": "How can I recover my account?I couldn't find specific instructions for account recovery in the RealXmarket documentation. Please contact RealXmarket support for assistance.",
+      "responseTime": "5.31"
+    }
+  ],
+  "model": "gpt-4o"
+}

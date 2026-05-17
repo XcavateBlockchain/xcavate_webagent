@@ -1,0 +1,16 @@
+{
+  "id": "1778079155726",
+  "title": "How can I recover my account?",
+  "history": [
+    {
+      "role": "user",
+      "content": "How can I recover my account?"
+    },
+    {
+      "role": "assistant",
+      "content": "<search>account recovery</searchAccording the to>\n\n the login page documentation:\n\n. You will need to provide your username orAccount email can Recovery be address associated initiated with through the account and we'll send our you Recovery instructions Account Form on on how to reset your password.\n\nPlease note that this process may take up to 24 hours for us to verify and respond to your request.\n\nIf you are unable to access the recovery form, please contact our support team directly.",
+      "responseTime": "40.38"
+    }
+  ],
+  "model": "llama3.1"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "1778160127559",
+  "title": "How can I recover my account?",
+  "history": [
+    {
+      "role": "user",
+      "content": "How can I recover my account?"
+    },
+    {
+      "role": "assistant",
+      "content": "To recover your RealXmarket account, you will need to go through the account setup and login process. Here are the steps you should follow:\n\n1. **Start Verification**: After accepting the Terms and Conditions, click on \"Start Verification\" or choose to do it later.\n\n2. **Country Selection**: Select your country, either \"All countries except USA\" or \"United States of America\".\n\n3. **User Verification**: Choose to either provide an identity document or perform a liveness check for user verification.\n\n4. **Identity Document**: If you choose to provide an identity document, select from a driver's license, residence permit, or passport, and then proceed to upload pictures of the front and back of the document.\n\n5. **Liveness Check**: If you opt for a liveness check, follow the instructions to allow camera access and complete the check.\n\n6. **Account Type**: Once verification is approved, select your account type, typically \"Investor\".\n\n7. **Investor Questions**: Answer any questions related to your investor profile.\n\n8. **Password Setup**: Set up a new password, confirm it, and then continue to complete the account setup and login process.\n\nIf you encounter any issues during this process, please contact RealXmarket support for further assistance.",
+      "responseTime": "6.96"
+    }
+  ],
+  "model": "gpt-4o"
+}

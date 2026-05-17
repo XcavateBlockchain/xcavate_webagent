@@ -1,0 +1,16 @@
+{
+  "id": "1778074112885",
+  "title": "Hi, what is the first parag...",
+  "history": [
+    {
+      "role": "user",
+      "content": "Hi, what is the first paragraph after the header MOBILE? in your realxmarket documentation?"
+    },
+    {
+      "role": "assistant",
+      "content": "I couldn't find any relevant information about a \"MOBILE\" header or paragraphs in the RealXmarket documentation at https://doc-hub.xcavate.io/. However, I can offer general guidance on how to create a mobile-friendly header using jQuery Mobile. Please let me know if you'd like more information on that topic.",
+      "responseTime": "24.50"
+    }
+  ],
+  "model": "llama3.1"
+}

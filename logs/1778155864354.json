@@ -1,0 +1,25 @@
+{
+  "id": "1778155864354",
+  "title": "What are the system require...",
+  "history": [
+    {
+      "role": "user",
+      "content": "What are the system requirement of the android app?"
+    },
+    {
+      "role": "assistant",
+      "content": "What are the system requirement of the android app?The system requirements for the RealXmarket Android app are as follows:\n\n- **Operating System**: Android 10 or above is required. New apps and updates submitted after August 31, 2025, must target Android 15 (API level 35).\n- **RAM**: Minimum 4GB is recommended; devices with lower RAM may experience performance issues.\n- **Processor**: Any modern quad-core CPU or better.\n- **Screen**: Over 5 inches for optimum experience.",
+      "responseTime": "6.43"
+    },
+    {
+      "role": "user",
+      "content": "Show Me More Features"
+    },
+    {
+      "role": "assistant",
+      "content": "Show Me More FeaturesThe RealXmarket Android app offers several key features:\n\n- **Property Listing Management**: Manage property listings with photos, descriptions, interactive maps, and 3D/VR tours.\n- **Advanced Search & Filters**: Filter properties by location, price, type, amenities, and more, with map-based results.\n- **Lead & Client Management**: Capture, track, and nurture leads with automated follow-ups and centralized client communications.\n- **User Roles & Permissions**: Granular access control for admins, agents, and clients to ensure data security and workflow efficiency.\n- **In-App Messaging**: Secure communication channels for buyers, agents, and sellers to negotiate or ask questions.\n\nThese features aim to enhance user experience by providing efficient property management and communication tools.",
+      "responseTime": "6.20"
+    }
+  ],
+  "model": "gpt-4o"
+}

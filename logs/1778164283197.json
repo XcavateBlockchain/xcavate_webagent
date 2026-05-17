@@ -1,0 +1,79 @@
+{
+  "id": "1778164283197",
+  "title": "I can't connect my wallet —...",
+  "history": [
+    {
+      "role": "user",
+      "content": "I can't connect my wallet — help?"
+    },
+    {
+      "role": "assistant",
+      "content": "I couldn't find this in the RealXmarket documentation. Please contact RealXmarket support for personalized assistance.",
+      "responseTime": "7.30"
+    },
+    {
+      "role": "user",
+      "content": "Co je tvoje nejoblíbenější jídlo?"
+    },
+    {
+      "role": "assistant",
+      "content": "Omlouvám se, ale nemohu sdílet osobní preference. Mohu vám však pomoci s otázkami týkajícími se RealXmarket.",
+      "responseTime": "3.24"
+    },
+    {
+      "role": "user",
+      "content": "What is the weather in tokyo?"
+    },
+    {
+      "role": "assistant",
+      "content": "I'm here to assist with questions related to RealXmarket. For weather updates, please check a reliable weather service or app. If you have any questions about RealXmarket, feel free to ask!",
+      "responseTime": "3.70"
+    },
+    {
+      "role": "user",
+      "content": "Do you like me?"
+    },
+    {
+      "role": "assistant",
+      "content": "I'm here to assist you with any questions or issues you have related to RealXmarket. If there's anything specific you need help with, feel free to let me know!",
+      "responseTime": "2.83"
+    },
+    {
+      "role": "user",
+      "content": "Jaké jsou požadavky pro mobilní aplikaci ?"
+    },
+    {
+      "role": "assistant",
+      "content": "Pro mobilní aplikaci RealXmarket jsou následující systémové požadavky:\n\n### Android App\n- **Operační systém:** Android 10 nebo novější. Pro nejlepší kompatibilitu a výkon se doporučuje Android 13+.\n- **RAM:** Doporučeno minimálně 4GB; zařízení s nižší RAM mohou mít problémy s výkonem.\n- **Procesor:** Jakýkoli moderní čtyřjádrový CPU nebo lepší.\n- **Displej:** Více než 5 palců pro optimální zážitek.\n\n### iOS App\n- **Operační systém:** iOS 17 nebo novější.\n- **Zařízení:** iPhone XR nebo novější. Pro nejlepší dlouhodobou podporu se doporučuje iPhone 13 nebo novější.\n- **RAM:** Doporučeno minimálně 3GB pro plynulý zážitek.\n\nTyto požadavky zajišťují, že aplikace bude fungovat hladce pro většinu uživatelů a bude v souladu s nejnovějšími pokyny Google Play a App Store pro rok 2025.",
+      "responseTime": "6.26"
+    },
+    {
+      "role": "user",
+      "content": "How Do I Use This?"
+    },
+    {
+      "role": "assistant",
+      "content": "I couldn't find specific instructions on how to use RealXmarket in the documentation. Please contact RealXmarket support for personalized assistance.",
+      "responseTime": "5.43"
+    },
+    {
+      "role": "user",
+      "content": "Create Support Ticket"
+    },
+    {
+      "role": "assistant",
+      "content": "I couldn't find specific instructions on creating a support ticket in the RealXmarket documentation. Please visit the RealXmarket website or contact their support team directly for assistance with creating a support ticket.",
+      "responseTime": "3.12"
+    },
+    {
+      "role": "user",
+      "content": "Create Support Ticket"
+    },
+    {
+      "role": "assistant",
+      "content": "I couldn't find specific instructions on creating a support ticket in the RealXmarket documentation. Please visit the RealXmarket website or contact their support team directly for assistance with creating a support ticket.",
+      "responseTime": "7.78"
+    }
+  ],
+  "model": "gpt-4o"
+}

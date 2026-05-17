@@ -1,0 +1,16 @@
+{
+  "id": "1778157644652",
+  "title": "What is KYC and how do I co...",
+  "history": [
+    {
+      "role": "user",
+      "content": "What is KYC and how do I complete it?"
+    },
+    {
+      "role": "assistant",
+      "content": "KYC,orKnowYourCustomer,isaprocessusedtoverifytheidentityofusersontheRealXmarketplatform.Here'showyoucancompletetheKYCprocessasaninvestor:1.**LogIn**:AccessyourRealXmarketaccountandselecttheKYCVerificationoption.2.**UploadDocuments**:-Provideagovernment-issuedID,suchasapassport,driver’slicense,orIDcard.-Submitproofofaddress,whichcanbeautilitybillorbankstatement.3.**LivenessCheck**:Completethelivenessorfacialrecognitionsteptoverifyyouridentity.4.**KYCQuestionnaire**:Ifprompted,fillouttheKYCQuestionnaire,whichmayincludequestionsaboutthesourceofyourfunds.5.**AwaitVerification**:Aftersubmission,waitforastatusupdate.YourapplicationwillbemarkedasApproved,Rejected,orPending.6.**Re-Submission**:Ifyourapplicationisrejected,followthepromptstore-submitthenecessarydocuments.Formoredetailedguidance,youcanrefertothe[InvestorsKYCVerificationguide](https://doc-hub.xcavate.io/applications/xcavate-dapp/realxmarket-tester-guide/sumsub-kyc-kyb/step-by-step-guides/investors-kyc-verification).",
+      "responseTime": "7.07"
+    }
+  ],
+  "model": "gpt-4o"
+}
