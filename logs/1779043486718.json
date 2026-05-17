@@ -1,0 +1,16 @@
+{
+  "id": "1779043486718",
+  "title": "What is KYC and how do I co...",
+  "history": [
+    {
+      "role": "user",
+      "content": "What is KYC and how do I complete it?"
+    },
+    {
+      "role": "assistant",
+      "content": "I couldn't find this in the RealXmarket documentation. Please contact RealXmarket support for personalized assistance regarding the KYC process.",
+      "responseTime": "7.65"
+    }
+  ],
+  "model": "gpt-4o"
+}

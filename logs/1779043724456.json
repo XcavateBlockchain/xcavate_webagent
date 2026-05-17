@@ -1,0 +1,16 @@
+{
+  "id": "1779043724456",
+  "title": "What are the requirements o...",
+  "history": [
+    {
+      "role": "user",
+      "content": "What are the requirements of the mobile app?"
+    },
+    {
+      "role": "assistant",
+      "content": "The RealXmarket mobile app has the following system requirements:\n\n### Android App\n- **Operating System:** Android 10 or above. New apps and updates must target Android 15 (API level 35) after August 31, 2025.\n- **RAM:** Minimum 4GB recommended.\n- **Processor:** Any modern quad-core CPU or better.\n- **Screen:** Over 5 inches for optimal experience.\n\n### iOS App\n- **Operating System:** iOS 17 or newer. New apps and updates must be built with iOS 18 SDK.\n- **Device:** iPhone XR or newer, with iPhone 13 lineup or newer recommended.\n- **RAM:** Minimum 3GB recommended for a smooth experience.\n\nThese requirements ensure compatibility and optimal performance with the latest app store guidelines.",
+      "responseTime": "8.05"
+    }
+  ],
+  "model": "gpt-4o"
+}
