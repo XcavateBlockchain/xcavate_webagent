@@ -20,7 +20,6 @@ RealXmarket Web Assistant is a customer support chat interface for RealXmarket, 
 - [API Endpoints](#-api-endpoints)
 - [Testing](#-testing)
 - [Documentation](#-documentation)
-- [Contributing](#-contributing)
 
 ---
 
@@ -206,25 +205,6 @@ Detailed documentation is available in the `docs/` directory:
 
 ---
 
-## 🤝 Contributing
-
-Contributions are welcome! If you have ideas for improvements:
-
-1.  Fork the repository
-2.  Create a feature branch
-3.  Make your changes
-4.  Submit a pull request
-
-**Areas for contribution:**
-
--   Adding new AI tools/capabilities
--   Enhancing the UI/UX
--   Improving documentation search accuracy
--   Adding chat export functionality (Markdown/PDF)
--   Implementing dark mode themes
-
----
-
 ## 📄 License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
@@ -234,5 +214,4 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for detai
 ## 🔗 Links
 
 -   **RealXmarket Docs:** https://doc-hub.xcavate.io
--   **Issue Tracker:** https://github.com/your-username/xcavate-web-assistant/issues
 -   **OpenAI:** https://platform.openai.com
