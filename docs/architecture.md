@@ -16,7 +16,7 @@ Flask application providing:
 - `POST /api/chats` - Save or update a chat
 - `GET /api/chats/<id>` - Get a specific chat
 - `DELETE /api/chats/<id>` - Delete a chat
-- `GET /api/mcp-status` - Documentation search status
+- `GET /api/mcp-status` - GitBook MCP connection status
 - `POST /api/web-search` - Direct documentation search
 
 **Chat Storage:**
@@ -30,14 +30,14 @@ Core agent logic using LangGraph:
 **System Prompt:** Defines AI behavior as RealXmarket support assistant. Instructs to use `search_realxmarket_docs` tool automatically when unsure.
 
 **Tools:**
-- `search_realxmarket_docs(query: str) -> str` - Searches RealXmarket documentation at doc-hub.xcavate.io
+- `search_realxmarket_docs(query: str) -> str` - Searches RealXmarket documentation via GitBook MCP
 
 **Streaming Flow:**
 1. Convert incoming message dicts to LangChain message objects
 2. Add system prompt if not present
 3. Invoke LLM with tools bound
 4. If tool call detected:
-   - Execute tool
+   - Execute tool (calls GitBook MCP client)
    - Log to console (for debugging)
    - Add AI message + tool response to context
    - Stream final answer
@@ -50,30 +50,25 @@ Core agent logic using LangGraph:
 - `final_answer_node(state, llm)` - Final response after tool use
 - `stream_agent_response(messages, model)` - Main streaming entry point
 
-### realxmarket_docs.py
-Documentation search client:
+### gitbook_mcp_client.py
+GitBook MCP client for documentation search:
 
 **Features:**
-- Fetches and indexes sitemap from doc-hub.xcavate.io
-- Keyword-based search with relevance scoring
-- Support query detection (boosts tester guides)
-- Content fetching with artifact cleaning
+- HTTP-based JSON-RPC client for GitBook MCP server
+- Connects to `https://doc-hub.xcavate.io/~gitbook/mcp`
+- Real-time documentation search without local indexing
+- Two available tools: `searchDocumentation` and `getPage`
 
 **Key Functions:**
-- `initialize_docs()` - Fetch and index sitemap on startup
-- `search_docs(query, max_results)` - Search indexed docs by keyword
-- `fetch_page_direct(url)` - Fetch page content as markdown
-- `search_and_answer(query)` - Main entry point for search+answer
-- `clean_doc_content(text)` - Remove artifacts from fetched content
-- `get_docs_status()` - Check if docs are available
+- `search_documentation(query)` - Search docs via GitBook MCP
+- `get_page(url)` - Fetch full page content
+- `list_tools()` - List available MCP tools
+- `get_mcp_status()` - Check connection status
 
-**Search Algorithm:**
-1. Extract keywords from query
-2. Score pages based on keyword matching in URL/title
-3. Boost pages for support-related queries (tester guides, login, etc.)
-4. Return top N results with scores
-5. Fetch content from top 3 pages
-6. Format results for AI consumption
+**Search Flow:**
+1. Send JSON-RPC POST request to GitBook MCP server
+2. Parse SSE-formatted response
+3. Return formatted search results with titles, links, and content
 
 ---
 
@@ -151,23 +146,22 @@ Main application:
 
 ## Tool Integration
 
-The `realxmarket_docs` package provides:
-- `initialize_docs()` - Initialize documentation index from sitemap
-- `search_and_answer(query)` - Search and return relevant info
-- `get_docs_status()` - Check if docs are available
+The `gitbook_mcp_client` module provides:
+- `search_documentation(query)` - Search documentation via GitBook MCP
+- `get_page(url)` - Fetch full page content
+- `get_mcp_status()` - Check if MCP server is available
 
 **Tool Call Logging:**
 ```
 [TOOL CALL] search_realxmarket_docs with query: "How to recover account?"
 
-[TOOL RESPONSE] Found documentation about account recovery...
+[TOOL RESPONSE] Title: Getting started\nLink: https://doc-hub.xcavate.io/...\nContent: ...
 ```
 
-**Indexing Behavior:**
-- On startup, fetches sitemap from https://doc-hub.xcavate.io/sitemap-pages.xml
-- Indexes only `/applications/xcavate-dapp/*` and `/protocol/*` pages
-- Stores URLs, titles, and keywords for each page
-- Typically indexes 100+ documentation pages
+**MCP Connection:**
+- On startup, checks connection to `https://doc-hub.xcavate.io/~gitbook/mcp`
+- Uses JSON-RPC 2.0 over HTTP POST with SSE responses
+- Available tools: `searchDocumentation`, `getPage`
 
 ---
 
@@ -179,17 +173,18 @@ sequenceDiagram
     participant Browser
     participant Server
     participant Agent
-    participant Docs
+    participant MCP
+    participant GitBook
 
     User->>Browser: Types question
     Browser->>Server: POST /api/chat
     Server->>Agent: stream_agent_response()
     Agent->>Agent: Convert messages
     Agent->>Agent: Add system prompt
-    Agent->>Docs: search_and_answer(query)
-    Docs->>Docs: Score pages by relevance
-    Docs->>Docs: Fetch top 3 pages
-    Docs-->>Agent: Context content
+    Agent->>MCP: search_documentation(query)
+    MCP->>GitBook: JSON-RPC POST to ~gitbook/mcp
+    GitBook-->>MCP: SSE search results
+    MCP-->>Agent: Formatted results
     Agent->>Agent: LLM generates response
     Agent-->>Server: Stream tokens
     Server-->>Browser: NDJSON chunks

@@ -1,0 +1,16 @@
+{
+  "id": "1779107980034",
+  "title": "What is realxMarket?",
+  "history": [
+    {
+      "role": "user",
+      "content": "What is realxMarket?"
+    },
+    {
+      "role": "assistant",
+      "content": "RealXmarket is a platform designed to provide a framework for verifying the identity of participants, property credentials, ownership, and asset prices compared to similar properties in a specific geographic area. This information is presented in a user-friendly format to help potential investors make informed decisions about real estate investments. The platform primarily targets professional investors with knowledge of real estate and the associated risks.",
+      "responseTime": "4.51"
+    }
+  ],
+  "model": "gpt-4o"
+}

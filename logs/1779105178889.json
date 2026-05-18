@@ -1,0 +1,16 @@
+{
+  "id": "1779105178889",
+  "title": "How do I track my transaction?",
+  "history": [
+    {
+      "role": "user",
+      "content": "How do I track my transaction?"
+    },
+    {
+      "role": "assistant",
+      "content": "I couldn't find this in the RealXmarket documentation. Please contact RealXmarket support for personalized assistance.",
+      "responseTime": "7.27"
+    }
+  ],
+  "model": "gpt-4o"
+}

@@ -7,12 +7,15 @@ from langgraph.graph.message import add_messages
 from langchain_core.messages import ToolMessage, SystemMessage, convert_to_messages
 import os
 
-# Tool: RealXmarket documentation search
+# Tool: RealXmarket documentation search (via GitBook MCP)
 @tool
 def search_realxmarket_docs(query: str) -> str:
-    """Search the official RealXmarket documentation at doc-hub.xcavate.io."""
-    from realxmarket_docs import search_and_answer
-    return search_and_answer(query)
+    """Search the official RealXmarket documentation at doc-hub.xcavate.io.
+
+    Uses the GitBook MCP server for up-to-date documentation search.
+    """
+    from gitbook_mcp_client import search_documentation
+    return search_documentation(query)
 
 # State definition
 class AgentState(TypedDict):

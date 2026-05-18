@@ -4,3 +4,4 @@ xmltodict
 langchain
 langgraph
 langchain-openai
+mcp

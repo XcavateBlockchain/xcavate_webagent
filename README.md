@@ -4,9 +4,9 @@
 
 <h1 align="center">RealXmarket Web Assistant<br>AI Customer Support with Documentation Search</h1>
 
-[![Python](https://img.shields.io/badge/Python-3.x-blue.svg)](https://www.python.org/) [![Flask](https://img.shields.io/badge/Flask-3.x-black.svg)](https://flask.palletsprojects.com/) [![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow.svg)](https://developer.mozilla.org/en-US/docs/Web/JavaScript) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![Python](https://img.shields.io/badge/Python-3.x-blue.svg)](https://www.python.org/) [![Flask](https://img.shields.io/badge/Flask-3.x-black.svg)](https://flask.palletsprojects.com/) [![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow.svg)](https://developer.mozilla.org/en/docs/Web/JavaScript) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-RealXmarket Web Assistant is a customer support chat interface for RealXmarket, built with a Flask backend and vanilla JavaScript frontend. The AI uses OpenAI's GPT-4o and automatically searches the official RealXmarket documentation to provide accurate, up-to-date answers.
+RealXmarket Web Assistant is a customer support chat interface for RealXmarket, built with a Flask backend and vanilla JavaScript frontend. The AI uses OpenAI's GPT-4o and automatically searches the official RealXmarket documentation via GitBook MCP to provide accurate, up-to-date answers.
 
 ## 📖 Table of Contents
 
@@ -26,7 +26,7 @@ RealXmarket Web Assistant is a customer support chat interface for RealXmarket, 
 ## ✨ Features
 
 *   **🤖 AI-Powered Support:** Uses OpenAI GPT-4o to understand and respond to user queries
-*   **📚 Automatic Documentation Search:** AI automatically searches RealXmarket documentation when needed
+*   **📚 Automatic Documentation Search:** AI automatically searches RealXmarket documentation via GitBook MCP when needed
 *   **💬 Real-Time Streaming:** Responses stream token-by-token for interactive conversations
 *   **💾 Chat History:** All conversations are automatically saved as JSON files
 *   **🔍 Built-in Search:** Direct web search endpoint for documentation queries
@@ -55,8 +55,8 @@ The application consists of a Python Flask backend and a vanilla JavaScript fron
 │   Browser       │────▶│   Flask Server   │────▶│   OpenAI API    │
 │   (index.html)  │◀────│   (server.py)    │◀────│   (gpt-4o)      │
 │                 │     │                  │     │                 │
-│   js/app.js     │     │ langgraph_agent  │────▶│ realxmarket     │
-│   js/api.js     │     │                  │     │ docs (tool)     │
+│   js/app.js     │     │ langgraph_agent  │────▶│ GitBook MCP     │
+│   js/api.js     │     │                  │     │ (docs search)   │
 └─────────────────┘     └──────────────────┘     └─────────────────┘
 ```
 
@@ -64,7 +64,7 @@ The application consists of a Python Flask backend and a vanilla JavaScript fron
 
 1.  **`server.py`** - Flask backend serving static files and REST API endpoints
 2.  **`langgraph_agent.py`** - Agent logic with tool integration for documentation search
-3.  **`realxmarket_docs.py`** - Documentation search client (indexes doc-hub.xcavate.io)
+3.  **`gitbook_mcp_client.py`** - GitBook MCP client for docs search at doc-hub.xcavate.io
 4.  **`js/*.js`** - Frontend modules (app, api, state, ui, config)
 
 ---
@@ -116,6 +116,8 @@ The application consists of a Python Flask backend and a vanilla JavaScript fron
 
     Navigate to `http://localhost:8001`
 
+The server will automatically connect to the GitBook MCP server at `https://doc-hub.xcavate.io/~gitbook/mcp` on startup.
+
 ---
 
 ## ⚙️ Configuration
@@ -154,7 +156,7 @@ export const MAX_CONTEXT_WINDOW = 8192;
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/api/mcp-status` | Check docs connection status |
+| `GET` | `/api/mcp-status` | Check GitBook MCP connection status |
 | `POST` | `/api/web-search` | Search documentation directly |
 
 See [`docs/api-reference.md`](docs/api-reference.md) for detailed request/response formats.
@@ -175,18 +177,14 @@ pip install pytest
 # Run all tests
 pytest tests/ -v
 
-# Run specific test file
-pytest tests/test_realxmarket_docs.py -v
-
 # Run with coverage report
 pytest tests/ --cov=. --cov-report=html
 ```
 
 **Test Coverage:**
 
--   `tests/test_realxmarket_docs.py` - Documentation search module (25 tests)
--   `tests/test_server.py` - Flask API endpoints (17 tests)
--   `tests/test_langgraph_agent.py` - Agent logic and tools (12 tests)
+-   `tests/test_server.py` - Flask API endpoints
+-   `tests/test_langgraph_agent.py` - Agent logic and tools
 
 ---
 
@@ -202,6 +200,7 @@ Detailed documentation is available in the `docs/` directory:
 | [`docs/components.md`](docs/components.md) | UI components and data models |
 | [`docs/development-guide.md`](docs/development-guide.md) | Guide for adding features |
 | [`docs/system-prompt.md`](docs/system-prompt.md) | System prompt reference and customization |
+| [`docs/mcp-server.md`](docs/mcp-server.md) | GitBook MCP integration details |
 
 ---
 

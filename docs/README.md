@@ -13,6 +13,7 @@ This directory contains comprehensive documentation for the RealXmarket Web Assi
 | [development-guide.md](development-guide.md) | Guide for adding features and common development tasks |
 | [system-prompt.md](system-prompt.md) | System prompt reference and customization guide |
 | [testing.md](testing.md) | Testing guide, test structure, and best practices |
+| [gitbook-mcp.md](gitbook-mcp.md) | GitBook MCP client integration guide |
 
 ## Quick Links
 

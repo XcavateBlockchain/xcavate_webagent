@@ -1,0 +1,34 @@
+{
+  "id": "1779106092859",
+  "title": "What are the system require...",
+  "history": [
+    {
+      "role": "user",
+      "content": "What are the system requirements for the app?"
+    },
+    {
+      "role": "assistant",
+      "content": "The system requirements for the RealXmarket app are as follows:\n\n**For Android:**\n- Operating System: Android 10 or above is required. It's recommended to use Android 12+ for full feature support.\n- RAM: Minimum 4GB is recommended; devices with lower RAM may experience performance issues.\n- Processor: Any modern quad-core CPU or better.\n- Screen: Over 5 inches for optimum experience.\n\n**For iOS:**\n- Operating System: iOS 17 or newer is increasingly required. Practical app support trends are for iOS 16/17+.\n- Device: iPhone XR or newer is recommended. For best longevity, consider using an iPhone 13 lineup or newer.\n- RAM: Minimum 3GB recommended for a smooth experience.\n\nThese requirements ensure the app runs smoothly and supports all features effectively.",
+      "responseTime": "8.99"
+    },
+    {
+      "role": "user",
+      "content": "How Do I Use This?"
+    },
+    {
+      "role": "assistant",
+      "content": "To use the RealXmarket app, follow these steps:\n\n1. **Installation:**\n   - **iOS Users:** \n     - Receive an invitation email and click the link to accept terms.\n     - Install TestFlight from the App Store if you haven't already.\n     - You'll receive a code from TestFlight, which you need to redeem.\n     - Install the RealXmarket beta app from within TestFlight.\n   - **Android Users:**\n     - Receive an invitation email and click the link to accept terms.\n     - Provide the email address used in the Google Play Store.\n     - Ensure your Google Play Store country settings match your country of residence.\n     - Once confirmed, locate the app in the Google Play Store by searching for \"com.xcavate.realxmarket\" and download it.\n\n2. **Understanding DIDs:**\n   - DIDs (Decentralized Identifiers) are used by the app to recognize you, similar to a secure digital ID. Understanding and managing your DID helps you control your personal data and its usage.\n\n3. **Using the App:**\n   - The app provides a framework to verify identities, property credentials, ownership, and asset prices. This information is presented in a user-friendly format to help you make informed investment decisions.\n\nFor more detailed guidance, you can refer to the RealXmarket documentation or contact their support for personalized assistance.",
+      "responseTime": "11.82"
+    },
+    {
+      "role": "user",
+      "content": "Show Me More Features"
+    },
+    {
+      "role": "assistant",
+      "content": "The RealXmarket app offers a variety of features designed to enhance your real estate investment experience:\n\n1. **Property Listing Management:** You can add, edit, delete, and view detailed property listings. These listings include photos, descriptions, interactive maps, and even 3D/VR tours.\n\n2. **Advanced Search & Filters:** Easily filter properties by location, price, type, amenities, and more. The results are map-based for better visualization.\n\n3. **Lead & Client Management:** Capture, track, and nurture leads with automated follow-ups and centralized client communications.\n\n4. **User Roles & Permissions:** The app provides granular access control for admins, agents, and clients to ensure data security and workflow efficiency.\n\n5. **In-App Messaging:** Secure communication channels are available for buyers, agents, and sellers to negotiate or ask questions.\n\n6. **Time & Cost Savings:** Automation and streamlined processes, such as document generation and lead routing, help reduce manual work and errors.\n\n7. **Transparency & Trust:** Centralized, easily accessible information about property details, legal documents, and transaction status enhances trust and speeds up decision-making.\n\n8. **Faster Sales Cycle:** Features like instant lead qualification, smart recommendations, and analytics accelerate the journey from inquiry to closing.\n\n9. **Enhanced Collaboration:** Teams, clients, and external partners can collaborate effectively through shared dashboards and messaging.\n\nThese features are designed to provide a comprehensive and efficient platform for real estate investment management.",
+      "responseTime": "5.52"
+    }
+  ],
+  "model": "gpt-4o"
+}

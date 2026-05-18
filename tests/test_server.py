@@ -4,16 +4,6 @@ import json
 import os
 from unittest.mock import patch, MagicMock
 
-# Mock the realxmarket_docs import before importing server
-import sys
-from unittest.mock import MagicMock
-
-# Create a proper mock module
-mock_docs_module = MagicMock()
-mock_docs_module.initialize_docs = MagicMock(return_value={"available": True, "pages": 10})
-mock_docs_module.search_and_answer = MagicMock(return_value="Search results")
-mock_docs_module.get_docs_status = MagicMock(return_value={"available": True, "pages": 10})
-sys.modules['realxmarket_docs'] = mock_docs_module
 
 # Now import the server app
 from server import app
@@ -34,14 +24,6 @@ def mock_logs_dir(tmp_path):
     logs_dir.mkdir()
     with patch('server.LOGS_DIR', str(logs_dir)):
         yield logs_dir
-
-
-@pytest.fixture(autouse=True)
-def reset_mocks():
-    """Reset mocks before each test"""
-    sys.modules['realxmarket_docs'].search_and_answer.reset_mock()
-    sys.modules['realxmarket_docs'].get_docs_status.reset_mock()
-    yield
 
 
 class TestStaticRoutes:
@@ -69,7 +51,8 @@ class TestMcpStatusEndpoint:
         assert response.status_code == 200
         data = response.get_json()
         assert "available" in data
-        assert "pages" in data
+        # GitBook MCP returns 'provider' and 'tools'
+        assert "provider" in data or "tools" in data
 
 
 class TestWebSearchEndpoint:

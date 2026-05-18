@@ -9,43 +9,55 @@ from flask import Response
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Import RealXmarket Docs client
+# Import GitBook MCP client
 try:
-    from realxmarket_docs import initialize_docs, search_and_answer, get_docs_status
+    from gitbook_mcp_client import get_mcp_status, search_documentation
 except ImportError:
-    logger.warning("RealXmarket docs client not available")
-    def initialize_docs(): return {"available": False}
-    def search_and_answer(q): return ""
-    def get_docs_status(): return {"available": False}
+    logger.warning("GitBook MCP client not available")
+    def get_mcp_status(): return {"available": False}
+    def search_documentation(q): return ""
+
+
+def get_docs_status():
+    """Return GitBook MCP status (primary docs source)."""
+    return get_mcp_status()
+
 
 app = Flask(__name__)
+
 
 @app.route('/css/<path:filename>')
 def serve_css(filename):
     return send_from_directory(os.path.join(app.root_path, 'css'), filename)
 
+
 @app.route('/js/<path:filename>')
 def serve_js(filename):
     return send_from_directory(os.path.join(app.root_path, 'js'), filename)
+
 
 LOGS_DIR = 'logs'
 if not os.path.exists(LOGS_DIR):
     os.makedirs(LOGS_DIR)
 
+
 @app.route('/')
 def index():
     return send_from_directory('.', 'index.html')
+
 
 @app.route('/api/mcp-status', methods=['GET'])
 def mcp_status():
     return jsonify(get_docs_status())
 
+
 @app.route('/api/web-search', methods=['POST'])
 def web_search():
     data = request.json
     query = data.get('query', '')
-    results = search_and_answer(query)
+    results = search_documentation(query)
     return jsonify({"query": query, "results": results})
+
 
 @app.route('/api/chat', methods=['POST'])
 def chat_stream():
@@ -79,6 +91,7 @@ def chat_stream():
 
     return Response(generate(), mimetype='application/x-ndjson')
 
+
 @app.route('/api/chats', methods=['GET'])
 def get_chats():
     chats = []
@@ -94,12 +107,14 @@ def get_chats():
     chats.sort(key=lambda x: str(x['id']), reverse=True)
     return jsonify(chats)
 
+
 @app.route('/api/chats/<chat_id>', methods=['GET'])
 def get_chat(chat_id):
     filepath = os.path.join(LOGS_DIR, f"{chat_id}.json")
     if os.path.exists(filepath):
         return send_from_directory(LOGS_DIR, f"{chat_id}.json")
     return jsonify({"error": "Chat not found"}), 404
+
 
 @app.route('/api/chats', methods=['POST'])
 def save_chat():
@@ -116,6 +131,7 @@ def save_chat():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @app.route('/api/chats/<chat_id>', methods=['DELETE'])
 def delete_chat(chat_id):
     filepath = os.path.join(LOGS_DIR, f"{chat_id}.json")
@@ -124,18 +140,21 @@ def delete_chat(chat_id):
         return jsonify({"success": True})
     return jsonify({"error": "Chat not found"}), 404
 
+
 if __name__ == '__main__':
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8001
 
     print(f"Starting Flask server on http://localhost:{port}")
 
+    # Check GitBook MCP connection status
     try:
-        result = initialize_docs()
-        if result.get("available"):
-            print(f"RealXmarket docs enabled: {result['pages']} pages indexed")
+        status = get_docs_status()
+        if status.get("available"):
+            tools = status.get("tools", [])
+            print(f"GitBook MCP connected: {len(tools)} tools available ({', '.join(tools)})")
         else:
-            print(f"RealXmarket docs disabled: {result.get('reason', 'Unknown error')}")
+            print(f"GitBook MCP unavailable: {status.get('reason', 'Unknown error')}")
     except Exception as e:
-        print(f"Docs init error: {e}")
+        print(f"Docs status error: {e}")
 
     app.run(host='127.0.0.1', port=port)
