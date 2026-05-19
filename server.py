@@ -142,9 +142,9 @@ def delete_chat(chat_id):
 
 
 if __name__ == '__main__':
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8001
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8080
 
-    print(f"Starting Flask server on http://localhost:{port}")
+    print(f"Starting Flask server on http://0.0.0.0:{port}")
 
     # Check GitBook MCP connection status
     try:
@@ -157,4 +157,5 @@ if __name__ == '__main__':
     except Exception as e:
         print(f"Docs status error: {e}")
 
-    app.run(host='127.0.0.1', port=port)
+    # Bind to 0.0.0.0 for container environments (EC2, Docker, etc.)
+    app.run(host='0.0.0.0', port=port)

@@ -1,8 +1,10 @@
-.gitignore
 .env
 .pytest_cache
 __pycache__
 __pycache__/*
 .venv
 .claude
-.vercel
+*.pyc
+.DS_Store
+logs/*.json
+README_EC2.md

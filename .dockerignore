@@ -1,0 +1,11 @@
+.venv
+__pycache__
+*.pyc
+.git
+.claude
+.env
+logs/*
+tests/
+__pycache__/*
+.gitignore
+README_EC2.md
