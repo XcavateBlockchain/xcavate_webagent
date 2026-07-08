@@ -643,6 +643,95 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     background: var(--color-gray, #9ca3af);
 }
 
+/* ============================================================
+   WALLET AUTHENTICATION UI
+   ============================================================ */
+#wallet-auth-container {
+    display: flex;
+    align-items: center;
+}
+
+.wallet-auth-connected,
+.wallet-auth-disconnected {
+    display: flex;
+    align-items: center;
+}
+
+.wallet-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    margin-right: 8px;
+}
+
+.wallet-address {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+    margin-right: 8px;
+    padding: 6px 10px;
+    background: var(--ai-bubble);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+}
+
+.wallet-connect-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 600;
+    transition: all var(--transition);
+    white-space: nowrap;
+    box-shadow: var(--shadow-sm);
+}
+
+.wallet-connect-btn:hover {
+    background: var(--accent-light);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+}
+
+.wallet-connect-btn:disabled {
+    background: var(--muted);
+    cursor: not-allowed;
+    transform: none;
+}
+
+.wallet-disconnect-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-size: 11px;
+    font-weight: 500;
+    transition: all var(--transition);
+}
+
+.wallet-disconnect-btn:hover {
+    background: var(--danger);
+    color: #fff;
+    border-color: var(--danger);
+}
+
+@media (max-width: 480px) {
+    .wallet-address {
+        display: none;
+    }
+}
+
 @media (max-width: 480px) {
     .self-service-grid { grid-template-columns: 1fr; }
     .category-columns { flex-direction: column; }

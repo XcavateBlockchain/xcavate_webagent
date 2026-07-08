@@ -58,6 +58,37 @@ export function getContextWindowForModel(modelName) {
     return state.modelContextWindows[modelName];
 }
 
+// WALLET AUTHENTICATION STATE
+let walletState = {
+    address: null,
+    signature: null,
+    account: null,
+    isConnected: false
+};
+
+export function getWalletAddress() { return walletState.address; }
+export function getWalletSignature() { return walletState.signature; }
+export function getWalletAccount() { return walletState.account; }
+export function getIsWalletConnected() { return walletState.isConnected; }
+
+export function setWalletAuth(address, signature, account) {
+    walletState = {
+        address,
+        signature,
+        account,
+        isConnected: true
+    };
+}
+
+export function clearWalletAuth() {
+    walletState = {
+        address: null,
+        signature: null,
+        account: null,
+        isConnected: false
+    };
+}
+
 let attachments = []; // Attachment list
 
 export function getAttachments() { return attachments; }

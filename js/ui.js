@@ -259,3 +259,57 @@ export function updateMCPStatus(docsConnected) {
         indicator.title = 'Docs not available';
     }
 }
+
+// --- WALLET AUTHENTICATION UI HELPERS ---
+
+let onWalletConnectClick = null;
+let onWalletDisconnectClick = null;
+
+export function setWalletClickHandlers(onConnect, onDisconnect) {
+    onWalletConnectClick = onConnect;
+    onWalletDisconnectClick = onDisconnect;
+}
+
+export function renderWalletAuthUI(isConnected, address, formatAddressFn) {
+    const walletContainer = document.getElementById('wallet-auth-container');
+    if (!walletContainer) return;
+
+    if (isConnected && address) {
+        walletContainer.innerHTML = `
+            <div class="wallet-auth-connected">
+                <span class="wallet-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/></svg>
+                </span>
+                <span class="wallet-address">${formatAddressFn(address)}</span>
+                <button type="button" class="wallet-disconnect-btn">Disconnect</button>
+            </div>
+        `;
+        const disconnectBtn = walletContainer.querySelector('.wallet-disconnect-btn');
+        if (disconnectBtn && onWalletDisconnectClick) {
+            disconnectBtn.addEventListener('click', onWalletDisconnectClick);
+        }
+    } else {
+        walletContainer.innerHTML = `
+            <div class="wallet-auth-disconnected">
+                <button type="button" class="wallet-connect-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+                    Connect Wallet
+                </button>
+            </div>
+        `;
+        const connectBtn = walletContainer.querySelector('.wallet-connect-btn');
+        if (connectBtn && onWalletConnectClick) {
+            connectBtn.addEventListener('click', onWalletConnectClick);
+        }
+    }
+}
+
+export function showWalletError(message) {
+    alert(message);
+}
+
+export function updateWalletButtonState(button, isLoading) {
+    if (!button) return;
+    button.disabled = isLoading;
+    button.textContent = isLoading ? 'Connecting...' : 'Connect Polkadot Wallet';
+}

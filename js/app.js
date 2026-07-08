@@ -4,6 +4,7 @@ import * as config from './config.js';
 import * as api from './api.js';
 import * as state from './state.js';
 import * as ui from './ui.js';
+import * as polkadotAuth from './polkadot-auth.js';
 
 let currentAbortController = null; // Used to cancel in-flight requests
 
@@ -11,6 +12,74 @@ const DEFAULT_QUICK_REPLIES = [
     'Help Me Fix It',
     'Create Support Ticket'
 ];
+
+// --- WALLET AUTHENTICATION HANDLERS ---
+
+async function handleWalletConnect() {
+    try {
+        const isInstalled = await polkadotAuth.isPolkadotExtensionInstalled();
+        if (!isInstalled) {
+            ui.showWalletError(`Polkadot.js extension not found. Please install it from ${polkadotAuth.getExtensionInstallUrl()}`);
+            return;
+        }
+
+        const accounts = await polkadotAuth.getAvailableAccounts();
+        if (!accounts || accounts.length === 0) {
+            ui.showWalletError('No accounts found in Polkadot extension. Please create or import an account first.');
+            return;
+        }
+
+        let selectedAccount;
+        if (accounts.length === 1) {
+            selectedAccount = accounts[0];
+        } else {
+            const addressList = accounts.map((acc, i) => `${i + 1}. ${acc.name} (${acc.address})`).join('\n');
+            const choice = prompt(`Multiple accounts found. Enter the number to connect:\n${addressList}`);
+            const index = parseInt(choice) - 1;
+            if (isNaN(index) || index < 0 || index >= accounts.length) {
+                ui.showWalletError('Invalid account selection.');
+                return;
+            }
+            selectedAccount = accounts[index];
+        }
+
+        const authData = await polkadotAuth.connectWallet(selectedAccount.address);
+        state.setWalletAuth(authData.address, authData.signature, authData);
+        updateWalletAuthUI();
+        console.log('Wallet connected:', authData.address);
+
+    } catch (error) {
+        console.error('Wallet connection error:', error);
+        ui.showWalletError(error.message || 'Failed to connect wallet. Please try again.');
+    }
+}
+
+function handleWalletDisconnect() {
+    polkadotAuth.disconnectWallet();
+    state.clearWalletAuth();
+    updateWalletAuthUI();
+    console.log('Wallet disconnected');
+}
+
+function updateWalletAuthUI() {
+    const isConnected = state.getIsWalletConnected();
+    const address = state.getWalletAddress();
+    const container = document.getElementById('wallet-auth-container');
+
+    if (isConnected && address) {
+        container.style.display = 'flex';
+        ui.renderWalletAuthUI(isConnected, address, polkadotAuth.formatAddress);
+    } else {
+        container.style.display = 'none';
+    }
+}
+
+async function initializeWalletStatus() {
+    const isInstalled = await polkadotAuth.isPolkadotExtensionInstalled();
+    console.log('Polkadot extension installed:', isInstalled);
+    ui.setWalletClickHandlers(handleWalletConnect, handleWalletDisconnect);
+    updateWalletAuthUI();
+}
 
 // --- BUSINESS LOGIC AND EVENT HANDLING ---
 
@@ -321,6 +390,9 @@ async function init() {
 
     // Set initial title
     ui.updateChatTitle(state.getCurrentModel());
+
+    // Initialize wallet status and Polkadot extension detection
+    await initializeWalletStatus();
 
     // Initialize MCP connection and status display
     await initializeMCPStatus();
