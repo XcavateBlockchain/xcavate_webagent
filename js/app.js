@@ -7,6 +7,7 @@ import * as ui from './ui.js';
 import * as polkadotAuth from './polkadot-auth.js';
 
 let currentAbortController = null; // Used to cancel in-flight requests
+let currentAiMessageElement = null; // Reference to the AI message element being built
 
 const DEFAULT_QUICK_REPLIES = [
     'Help Me Fix It',
@@ -171,7 +172,7 @@ async function handleFormSubmit(event, quickActionPrompt = null) {
     state.pushToHistory({ role: 'user', content: userPrompt });
     updateTotalTokenCount();
 
-    const aiMessageElement = ui.addMessageToLog('assistant', '<span class="cursor"></span>');
+    currentAiMessageElement = ui.addMessageToLog('assistant', '<span class="cursor"></span>');
     let fullResponse = '';
 
     // Initialize a new AbortController for each request
@@ -187,22 +188,21 @@ async function handleFormSubmit(event, quickActionPrompt = null) {
                     fullResponse += message.content;
                 }
                 let htmlContent = marked.parse(fullResponse.trim());
-                // Remove extra whitespace between tags
                 htmlContent = htmlContent.replace(/\s*\n\s*/g, ' ').replace(/>\s+</g, '><').trim();
-                aiMessageElement.innerHTML = DOMPurify.sanitize(htmlContent) + '<span class="cursor"></span>';
+                currentAiMessageElement.innerHTML = DOMPurify.sanitize(htmlContent) + '<span class="cursor"></span>';
                 ui.scrollToBottom();
             },
             // onDone
             async () => {
-                aiMessageElement.querySelector('.cursor')?.remove();
+                currentAiMessageElement.querySelector('.cursor')?.remove();
                 const duration = ((performance.now() - startTime) / 1000).toFixed(2);
-                ui.addResponseTime(aiMessageElement, duration);
+                ui.addResponseTime(currentAiMessageElement, duration);
 
                 state.pushToHistory({ role: 'assistant', content: fullResponse.trim() });
                 updateTotalTokenCount();
 
                 const quickReplies = generateQuickReplies(userPrompt, fullResponse);
-                ui.renderInlineQuickReplies(aiMessageElement, quickReplies, submitQuickAction);
+                ui.renderInlineQuickReplies(currentAiMessageElement, quickReplies, submitQuickAction);
 
                 const lastTurn = state.getCurrentChat().history[state.getCurrentChat().history.length - 1];
                 if (lastTurn.role === 'assistant') {
@@ -215,16 +215,23 @@ async function handleFormSubmit(event, quickActionPrompt = null) {
     } catch (error) {
         if (error.name === 'AbortError') {
             console.warn("Request cancelled by user.");
-            aiMessageElement.textContent = 'Response cancelled.';
-            aiMessageElement.style.color = 'var(--color-yellow)'; // Styling for cancelled state
+            // Remove the AI message bubble entirely
+            const elementToRemove = currentAiMessageElement;
+            currentAiMessageElement = null;
+            if (elementToRemove && elementToRemove.parentNode) {
+                elementToRemove.parentNode.removeChild(elementToRemove);
+            }
         } else {
             console.error('OpenAI request error:', error);
-            aiMessageElement.style.color = '#ff8a80';
-            aiMessageElement.textContent = `Error: ${error.message}. Make sure OPENAI_API_KEY is set.`;
+            if (currentAiMessageElement) {
+                currentAiMessageElement.style.color = '#ff8a80';
+                currentAiMessageElement.textContent = `Error: ${error.message}. Make sure OPENAI_API_KEY is set.`;
+            }
         }
     } finally {
         ui.toggleLoading(false);
-        currentAbortController = null; // Reset controller
+        currentAbortController = null;
+        currentAiMessageElement = null;
     }
 }
 

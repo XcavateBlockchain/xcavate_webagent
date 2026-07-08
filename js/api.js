@@ -87,7 +87,10 @@ export async function streamAgentResponse(history, model, onChunk, onDone, signa
             }
         }
     } catch (error) {
-        if (error.name !== 'AbortError') {
+        if (error.name === 'AbortError') {
+            // Re-throw AbortError so the caller knows the request was cancelled
+            throw error;
+        } else {
             console.error('Stream error:', error);
             throw error;
         }
