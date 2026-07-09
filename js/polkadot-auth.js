@@ -1,4 +1,5 @@
 // js/polkadot-auth.js - Polkadot extension wallet authentication module
+// Uses the injected extension API directly (window.injectedWeb3)
 
 let connectedAccount = null;
 let injectedExtension = null;
@@ -37,7 +38,6 @@ export async function isPolkadotExtensionInstalled() {
         const ext = await getInjectedExtension();
         return ext !== null;
     } catch (error) {
-        console.error('Polkadot extension check failed:', error);
         return false;
     }
 }
@@ -47,70 +47,57 @@ export async function isPolkadotExtensionInstalled() {
  * Returns array of account objects with { address, name }
  */
 export async function getAvailableAccounts() {
-    try {
-        const ext = await getInjectedExtension();
-        if (!ext) {
-            throw new Error('Polkadot extension not found');
-        }
-
-        // Subscribe to accounts
-        return new Promise((resolve, reject) => {
-            window.web3AccountsSubscribe((accounts) => {
-                if (accounts) {
-                    resolve(accounts.map(acc => ({
-                        address: acc.address,
-                        name: acc.meta?.name || acc.address.slice(0, 8) + '...'
-                    })));
-                } else {
-                    resolve([]);
-                }
-            }, (error) => {
-                console.error('Account subscription error:', error);
-                resolve([]);
-            });
-        });
-    } catch (error) {
-        console.error('Failed to get accounts:', error);
-        throw error;
+    const ext = await getInjectedExtension();
+    if (!ext) {
+        throw new Error('Polkadot extension not found');
     }
+
+    return new Promise((resolve) => {
+        ext.accounts.subscribe((accounts) => {
+            if (accounts) {
+                resolve(accounts.map(acc => ({
+                    address: acc.address,
+                    name: acc.meta?.name || acc.address.slice(0, 8) + '...'
+                })));
+            } else {
+                resolve([]);
+            }
+        });
+    });
 }
 
 /**
  * Connect wallet and request signature for authentication
- * @param {string} accountAddress - The Polkadot address to connect
- * @returns {Promise<{address: string, signature: string, account: object}>}
  */
 export async function connectWallet(accountAddress) {
-    try {
-        const ext = await getInjectedExtension();
-        if (!ext) {
-            throw new Error('Polkadot extension not installed');
-        }
-
-        // Create a challenge message to sign
-        const challengeMessage = `Authenticate with xCavate WebAgent\nTimestamp: ${Date.now()}\nAddress: ${accountAddress}`;
-
-        // Sign the message using the extension
-        const { signature } = await ext.signRaw({
-            address: accountAddress,
-            data: challengeMessage,
-            type: 'bytes'
-        });
-
-        connectedAccount = {
-            address: accountAddress,
-            signature: signature,
-            message: challengeMessage
-        };
-
-        return connectedAccount;
-    } catch (error) {
-        console.error('Wallet connection failed:', error);
-        if (error.message && error.message.toLowerCase().includes('cancelled')) {
-            throw new Error('Connection cancelled by user');
-        }
-        throw error;
+    const ext = await getInjectedExtension();
+    if (!ext) {
+        throw new Error('Polkadot extension not installed');
     }
+
+    const challengeMessage = `Authenticate with xCavate WebAgent\nTimestamp: ${Date.now()}\nAddress: ${accountAddress}`;
+
+    let injector;
+    if (window.web3FromAddress) {
+        injector = await window.web3FromAddress(accountAddress);
+    } else if (ext.signer) {
+        injector = ext;
+    } else {
+        throw new Error('No signer available');
+    }
+
+    const result = await injector.signer.signRaw({
+        address: accountAddress,
+        type: 'bytes',
+        data: challengeMessage
+    });
+
+    connectedAccount = {
+        address: accountAddress,
+        signature: result.signature,
+        message: challengeMessage
+    };
+    return connectedAccount;
 }
 
 /**
@@ -123,31 +110,19 @@ export function disconnectWallet() {
 
 /**
  * Sign an arbitrary message with the connected account
- * @param {string} message - Message to sign
- * @returns {Promise<string>} Signature hex string
  */
 export async function signMessage(message) {
-    try {
-        if (!connectedAccount) {
-            throw new Error('No wallet connected');
-        }
-
-        const ext = await getInjectedExtension();
-        if (!ext) {
-            throw new Error('Polkadot extension not available');
-        }
-
-        const { signature } = await ext.signRaw({
-            address: connectedAccount.address,
-            data: message,
-            type: 'bytes'
-        });
-
-        return signature;
-    } catch (error) {
-        console.error('Message signing failed:', error);
-        throw error;
+    if (!connectedAccount) {
+        throw new Error('No wallet connected');
     }
+
+    const injector = await window.web3FromAddress?.(connectedAccount.address) || getInjectedExtension();
+    const result = await injector.signer.signRaw({
+        address: connectedAccount.address,
+        type: 'bytes',
+        data: message
+    });
+    return result.signature;
 }
 
 /**

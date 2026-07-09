@@ -1,5 +1,17 @@
 // js/api.js - API client for OpenAI-based LangGraph backend
 
+let walletAddress = null;
+let hasWallet = false;
+
+export function setWalletInfo(address, connected) {
+    walletAddress = address;
+    hasWallet = connected;
+}
+
+export function getWalletInfo() {
+    return { walletAddress, hasWallet };
+}
+
 export async function getChats() {
     const response = await fetch('/api/chats');
     return await response.json();
@@ -11,10 +23,15 @@ export async function getChat(id) {
 }
 
 export async function saveChat(chatData) {
+    const payload = {
+        ...chatData,
+        walletAddress: walletAddress,
+        hasWallet: hasWallet
+    };
     return fetch('/api/chats', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(chatData),
+        body: JSON.stringify(payload),
     });
 }
 

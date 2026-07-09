@@ -3,6 +3,7 @@ import os
 import json
 import sys
 import logging
+from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory
 from flask import Response
 
@@ -101,7 +102,12 @@ def get_chats():
             try:
                 with open(os.path.join(LOGS_DIR, filename), 'r', encoding='utf-8') as f:
                     data = json.load(f)
-                    chats.append({'id': data.get('id', chat_id), 'title': data.get('title', 'Untitled chat')})
+                    chats.append({
+                        'id': data.get('id', chat_id),
+                        'title': data.get('title', 'Untitled chat'),
+                        'model': data.get('model'),
+                        'datetime': data.get('datetime')
+                    })
             except (json.JSONDecodeError, KeyError) as e:
                 logger.error(f"Error reading file {filename}: {e}")
     chats.sort(key=lambda x: str(x['id']), reverse=True)
@@ -123,6 +129,14 @@ def save_chat():
     if not chat_id:
         return jsonify({"error": "Missing chat ID"}), 400
 
+    # Add wallet info if provided
+    if 'walletAddress' in chat_data or 'hasWallet' in chat_data:
+        chat_data['walletAddress'] = chat_data.get('walletAddress', None)
+        chat_data['hasWallet'] = chat_data.get('hasWallet', False)
+
+    # Add datetime timestamp
+    chat_data['datetime'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
     filepath = os.path.join(LOGS_DIR, f"{chat_id}.json")
     try:
         with open(filepath, 'w', encoding='utf-8') as f:
@@ -139,6 +153,37 @@ def delete_chat(chat_id):
         os.remove(filepath)
         return jsonify({"success": True})
     return jsonify({"error": "Chat not found"}), 404
+
+
+@app.route('/api/wallet/log', methods=['POST'])
+def log_wallet_event():
+    data = request.json
+    address = data.get('address')
+    event_type = data.get('event_type', 'connected')
+
+    if not address:
+        return jsonify({"error": "Missing address"}), 400
+
+    log_entry = {
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "event_type": event_type,
+        "wallet_address": address
+    }
+
+    log_file = os.path.join(LOGS_DIR, "wallet_events.json")
+    try:
+        logs = []
+        if os.path.exists(log_file):
+            with open(log_file, 'r', encoding='utf-8') as f:
+                logs = json.load(f)
+        logs.append(log_entry)
+        with open(log_file, 'w', encoding='utf-8') as f:
+            json.dump(logs, f, indent=2, ensure_ascii=False)
+        logger.info(f"Wallet event logged: {event_type} for address {address[:8]}...")
+        return jsonify({"success": True})
+    except Exception as e:
+        logger.error(f"Error writing wallet log: {e}")
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == '__main__':

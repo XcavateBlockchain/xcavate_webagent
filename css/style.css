@@ -87,9 +87,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
 .delete-btn { font-size: 18px; color: var(--muted); transition: color var(--transition); }
 .delete-btn:hover { color: var(--danger); }
-.chat-info { min-width: 0; display: flex; gap: 8px; align-items: center; }
+.chat-info { min-width: 0; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .chat-title { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 13px; }
-.model-tag { display: none; }
+.model-tag { display: inline; font-size: 11px; color: var(--text-secondary); }
+.datetime-tag { display: inline; font-size: 11px; color: var(--muted); }
 
 /* ============================================================
    LANDING / HELP PAGE

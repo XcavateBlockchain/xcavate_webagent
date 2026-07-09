@@ -1,85 +1,57 @@
 // js/app.js
-console.log("APP.JS LOADED");
 import * as config from './config.js';
 import * as api from './api.js';
 import * as state from './state.js';
 import * as ui from './ui.js';
 import * as polkadotAuth from './polkadot-auth.js';
+import { setWalletInfo } from './api.js';
 
-let currentAbortController = null; // Used to cancel in-flight requests
-let currentAiMessageElement = null; // Reference to the AI message element being built
+let currentAbortController = null;
+let currentAiMessageElement = null;
 
-const DEFAULT_QUICK_REPLIES = [
-    'Help Me Fix It',
-    'Create Support Ticket'
-];
+const DEFAULT_QUICK_REPLIES = ['Help Me Fix It', 'Create Support Ticket'];
 
-// --- WALLET AUTHENTICATION HANDLERS ---
-
-async function handleWalletConnect() {
-    try {
-        const isInstalled = await polkadotAuth.isPolkadotExtensionInstalled();
-        if (!isInstalled) {
-            ui.showWalletError(`Polkadot.js extension not found. Please install it from ${polkadotAuth.getExtensionInstallUrl()}`);
-            return;
-        }
-
-        const accounts = await polkadotAuth.getAvailableAccounts();
-        if (!accounts || accounts.length === 0) {
-            ui.showWalletError('No accounts found in Polkadot extension. Please create or import an account first.');
-            return;
-        }
-
-        let selectedAccount;
-        if (accounts.length === 1) {
-            selectedAccount = accounts[0];
-        } else {
-            const addressList = accounts.map((acc, i) => `${i + 1}. ${acc.name} (${acc.address})`).join('\n');
-            const choice = prompt(`Multiple accounts found. Enter the number to connect:\n${addressList}`);
-            const index = parseInt(choice) - 1;
-            if (isNaN(index) || index < 0 || index >= accounts.length) {
-                ui.showWalletError('Invalid account selection.');
-                return;
-            }
-            selectedAccount = accounts[index];
-        }
-
-        const authData = await polkadotAuth.connectWallet(selectedAccount.address);
-        state.setWalletAuth(authData.address, authData.signature, authData);
-        updateWalletAuthUI();
-        console.log('Wallet connected:', authData.address);
-
-    } catch (error) {
-        console.error('Wallet connection error:', error);
-        ui.showWalletError(error.message || 'Failed to connect wallet. Please try again.');
-    }
-}
-
-function handleWalletDisconnect() {
-    polkadotAuth.disconnectWallet();
-    state.clearWalletAuth();
-    updateWalletAuthUI();
-    console.log('Wallet disconnected');
-}
-
-function updateWalletAuthUI() {
-    const isConnected = state.getIsWalletConnected();
-    const address = state.getWalletAddress();
-    const container = document.getElementById('wallet-auth-container');
-
-    if (isConnected && address) {
-        container.style.display = 'flex';
-        ui.renderWalletAuthUI(isConnected, address, polkadotAuth.formatAddress);
-    } else {
-        container.style.display = 'none';
-    }
-}
+// --- WALLET AUTHENTICATION ---
+// Wallet connects automatically on page load
 
 async function initializeWalletStatus() {
     const isInstalled = await polkadotAuth.isPolkadotExtensionInstalled();
-    console.log('Polkadot extension installed:', isInstalled);
-    ui.setWalletClickHandlers(handleWalletConnect, handleWalletDisconnect);
-    updateWalletAuthUI();
+
+    // Check for previously connected wallet
+    const storedAddress = localStorage.getItem('walletAddress');
+    if (storedAddress) {
+        api.setWalletInfo(storedAddress, true);
+        state.setWalletAuth(storedAddress, null, { address: storedAddress, isConnected: true });
+        console.log('[Wallet] Restored:', storedAddress.slice(0, 8) + '...');
+    }
+}
+
+// Auto-connect wallet if Polkadot extension is available
+async function autoConnectWallet() {
+    try {
+        const isInstalled = await polkadotAuth.isPolkadotExtensionInstalled();
+        if (!isInstalled) return;
+
+        const accounts = await polkadotAuth.getAvailableAccounts();
+        if (!accounts || accounts.length === 0) return;
+
+        const selectedAccount = accounts[0];
+        const authData = await polkadotAuth.connectWallet(selectedAccount.address);
+
+        state.setWalletAuth(authData.address, authData.signature, authData);
+        localStorage.setItem('walletAddress', authData.address);
+        localStorage.setItem('walletAuthData', JSON.stringify({
+            address: authData.address,
+            signature: authData.signature,
+            connectedAt: Date.now()
+        }));
+
+        api.setWalletInfo(authData.address, true);
+        console.log('[Wallet] Connected:', authData.address.slice(0, 8) + '...');
+
+    } catch (error) {
+        console.error('[Wallet] Connection failed:', error.message);
+    }
 }
 
 // --- BUSINESS LOGIC AND EVENT HANDLING ---
@@ -215,7 +187,6 @@ async function handleFormSubmit(event, quickActionPrompt = null) {
     } catch (error) {
         if (error.name === 'AbortError') {
             console.warn("Request cancelled by user.");
-            // Remove the AI message bubble entirely
             const elementToRemove = currentAiMessageElement;
             currentAiMessageElement = null;
             if (elementToRemove && elementToRemove.parentNode) {
@@ -223,7 +194,24 @@ async function handleFormSubmit(event, quickActionPrompt = null) {
             }
         } else {
             console.error('OpenAI request error:', error);
-            if (currentAiMessageElement) {
+
+            // Check for rate limit error (429)
+            const isRateLimitError = error.message?.includes('429') ||
+                                     error.message?.includes('rate_limit') ||
+                                     error.message?.includes('tokens per min') ||
+                                     error.message?.includes('Request too large');
+
+            if (isRateLimitError && currentAiMessageElement) {
+                currentAiMessageElement.style.color = '#ff8a80';
+                currentAiMessageElement.innerHTML = `
+                    <strong>Rate limit exceeded.</strong><br><br>
+                    Your OpenAI API request was too large for the current rate limit. Here are some options:<br><br>
+                    • <strong>Wait a moment</strong> and try again (limits reset periodically)<br>
+                    • <strong>Shorten your conversation</strong> - start a new chat to reduce token count<br>
+                    • <strong>Check your OpenAI account</strong> at https://platform.openai.com/account/rate-limits<br><br>
+                    <em>Note: Free tier accounts have lower rate limits than paid accounts.</em>
+                `;
+            } else if (currentAiMessageElement) {
                 currentAiMessageElement.style.color = '#ff8a80';
                 currentAiMessageElement.textContent = `Error: ${error.message}. Make sure OPENAI_API_KEY is set.`;
             }
@@ -300,7 +288,6 @@ function updateTotalTokenCount() {
 
     const tokenCount = estimateTokens(combinedText);
     const maxTokens = config.MAX_CONTEXT_WINDOW;
-    console.log(`Token Count: ${tokenCount}, Max Tokens: ${maxTokens}, Current Model: ${state.getCurrentModel()}`);
     ui.updateTokenUI(tokenCount, maxTokens);
 }
 
@@ -398,8 +385,9 @@ async function init() {
     // Set initial title
     ui.updateChatTitle(state.getCurrentModel());
 
-    // Initialize wallet status and Polkadot extension detection
+    // Initialize wallet status and auto-connect
     await initializeWalletStatus();
+    await autoConnectWallet();
 
     // Initialize MCP connection and status display
     await initializeMCPStatus();
