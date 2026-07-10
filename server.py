@@ -6,6 +6,14 @@ import logging
 from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory
 from flask import Response
+from dotenv import load_dotenv
+
+
+load_dotenv(override=False)
+
+
+def get_openai_model() -> str:
+    return os.environ.get("OPENAI_MODEL")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -52,6 +60,11 @@ def mcp_status():
     return jsonify(get_docs_status())
 
 
+@app.route('/api/config', methods=['GET'])
+def runtime_config():
+    return jsonify({"default_model": get_openai_model()})
+
+
 @app.route('/api/web-search', methods=['POST'])
 def web_search():
     data = request.json
@@ -64,7 +77,7 @@ def web_search():
 def chat_stream():
     data = request.json
     messages = data.get('messages', [])
-    model = data.get('model', 'gpt-4o')
+    model = get_openai_model()
 
     def generate():
         try:

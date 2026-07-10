@@ -1,4 +1,4 @@
-# langgraph_agent.py - LangGraph agent with OpenAI GPT-4o and RealXmarket docs tool
+# langgraph_agent.py - LangGraph agent with OpenAI and RealXmarket docs tool
 from typing import TypedDict, Annotated, List, Any
 from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
@@ -6,6 +6,10 @@ from langgraph.graph import StateGraph, END
 from langgraph.graph.message import add_messages
 from langchain_core.messages import ToolMessage, SystemMessage, convert_to_messages
 import os
+
+
+def get_openai_model() -> str:
+    return os.environ.get("OPENAI_MODEL")
 
 # Tool: RealXmarket documentation search (via GitBook MCP)
 @tool
@@ -35,13 +39,15 @@ GUIDELINES:
 - If a question is outside RealXmarket's scope (general crypto advice, third-party services), politely redirect to RealXmarket-specific topics"""
 
 # LLM with tool binding - uses OpenAI API
-def create_llm_with_tools(model_name: str = "gpt-4o"):
+def create_llm_with_tools(model_name: str = None):
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
         raise ValueError("OPENAI_API_KEY environment variable not set")
 
+    resolved_model = model_name or get_openai_model()
+
     llm = ChatOpenAI(
-        model=model_name,
+        model=resolved_model,
         temperature=0.1,
         api_key=api_key
     )
@@ -127,8 +133,9 @@ def final_answer_node(state: AgentState, llm):
     # Use LLM without tools for final answer
     from langchain_openai import ChatOpenAI
     api_key = os.environ.get("OPENAI_API_KEY")
+    resolved_model = get_openai_model()
     simple_llm = ChatOpenAI(
-        model="gpt-4o",
+        model=resolved_model,
         temperature=0.1,
         api_key=api_key
     )
@@ -136,7 +143,7 @@ def final_answer_node(state: AgentState, llm):
     return {"messages": [response], "tool_output": ""}
 
 # Create workflow
-def create_agent_graph(model: str = "gpt-4o"):
+def create_agent_graph(model: str = None):
     llm = create_llm_with_tools(model)
 
     workflow = StateGraph(AgentState)
@@ -165,7 +172,7 @@ def create_agent_graph(model: str = "gpt-4o"):
     return workflow.compile(checkpointer=None)
 
 # Streaming version - handles tool calls and streams tokens
-def stream_agent_response(messages: List[dict], model: str = "gpt-4o"):
+def stream_agent_response(messages: List[dict], model: str = None):
     from langchain_core.messages import SystemMessage, AIMessage, convert_to_messages
 
     # Convert messages
@@ -176,7 +183,8 @@ def stream_agent_response(messages: List[dict], model: str = "gpt-4o"):
     if not has_system:
         msg_list = [SystemMessage(content=SYSTEM_PROMPT)] + list(msg_list)
 
-    llm = create_llm_with_tools(model)
+    resolved_model = model or get_openai_model()
+    llm = create_llm_with_tools(resolved_model)
 
     # First invocation to check for tool calls
     response = llm.invoke(msg_list)
@@ -206,7 +214,7 @@ def stream_agent_response(messages: List[dict], model: str = "gpt-4o"):
             ))
 
             # Stream the final response
-            simple_llm = ChatOpenAI(model="gpt-4o", temperature=0.1, api_key=os.environ.get("OPENAI_API_KEY"))
+            simple_llm = ChatOpenAI(model=resolved_model, temperature=0.1, api_key=os.environ.get("OPENAI_API_KEY"))
             for chunk in simple_llm.stream(msg_list):
                 if hasattr(chunk, 'content') and chunk.content:
                     yield {"messages": [chunk]}
@@ -219,7 +227,7 @@ def stream_agent_response(messages: List[dict], model: str = "gpt-4o"):
             return
 
     # No tool call - stream the response directly
-    simple_llm = ChatOpenAI(model=model, temperature=0.1, api_key=os.environ.get("OPENAI_API_KEY"))
+    simple_llm = ChatOpenAI(model=resolved_model, temperature=0.1, api_key=os.environ.get("OPENAI_API_KEY"))
     for chunk in simple_llm.stream(msg_list):
         if hasattr(chunk, 'content') and chunk.content:
             yield {"messages": [chunk]}

@@ -153,7 +153,7 @@ async function handleFormSubmit(event, quickActionPrompt = null) {
     try {
         await api.streamAgentResponse(
             state.getCurrentChat().history,
-            'gpt-4o',
+            state.getCurrentModel(),
             // onChunk
             (message) => {
                 if (message.content) {
@@ -381,6 +381,15 @@ function bindLandingPageEvents() {
 async function init() {
     // Show landing page first
     ui.showLanding();
+
+    try {
+        const runtimeConfig = await api.getRuntimeConfig();
+        config.setDefaultModel(runtimeConfig?.default_model);
+    } catch (error) {
+        console.warn('Failed to load runtime model config, using frontend fallback:', error);
+    }
+
+    state.setCurrentModel(config.DEFAULT_MODEL);
 
     // Set initial title
     ui.updateChatTitle(state.getCurrentModel());

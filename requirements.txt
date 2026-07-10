@@ -6,3 +6,4 @@ langchain
 langgraph
 langchain-openai
 mcp
+python-dotenv

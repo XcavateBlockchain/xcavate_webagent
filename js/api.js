@@ -12,6 +12,11 @@ export function getWalletInfo() {
     return { walletAddress, hasWallet };
 }
 
+export async function getRuntimeConfig() {
+    const response = await fetch('/api/config');
+    return await response.json();
+}
+
 export async function getChats() {
     const response = await fetch('/api/chats');
     return await response.json();

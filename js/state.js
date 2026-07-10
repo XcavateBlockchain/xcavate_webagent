@@ -42,7 +42,7 @@ export function getCurrentModel() {
 }
 
 export function setCurrentModel(modelName) {
-    state.currentModel = modelName || DEFAULT_MODEL;
+    state.currentModel = modelName;
 }
 
 // FUNCTIONS TO HANDLE MODEL CONTEXT WINDOWS
