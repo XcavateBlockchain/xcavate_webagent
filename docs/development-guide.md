@@ -115,6 +115,8 @@ Update `OPENAI_MODEL` in your `.env` file. The frontend reads it from `/api/conf
 ### Adjust Context Window Size
 Update `MAX_CONTEXT_WINDOW` in your `.env` file.
 
+If you previously edited `js/config.js`, move those values into `.env`. That file has been deleted.
+
 ### Add Quick Action Buttons
 Add buttons in `index.html` with `data-prompt` attribute:
 ```html

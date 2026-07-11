@@ -79,6 +79,8 @@ Configuration comes from `/api/config`, which is populated from `.env` values:
 - `OPENAI_MODEL`
 - `MAX_CONTEXT_WINDOW`
 
+The old `js/config.js` file was removed, so the frontend no longer keeps local model or context-window defaults.
+
 ### js/api.js
 API client module:
 - `streamAgentResponse(history, model, onChunk, onDone, signal)` - Streams chat responses

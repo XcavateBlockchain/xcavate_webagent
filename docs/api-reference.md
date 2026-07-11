@@ -116,6 +116,8 @@ Search RealXmarket documentation directly.
 ### Runtime config
 The frontend reads runtime values from `GET /api/config`.
 
+This replaces the old `js/config.js` frontend config module.
+
 ```json
 {
   "default_model": "gpt-4o",
