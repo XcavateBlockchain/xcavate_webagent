@@ -53,7 +53,6 @@ A customer support chat assistant for RealXmarket, built with a Flask backend an
 | `realxmarket_docs.py` | Documentation search client (sitemap indexer) |
 | `js/app.js` | Main application logic, event handlers |
 | `js/api.js` | HTTP client, system prompt, streaming API |
-| `js/config.js` | Configuration (model name, context window) |
 | `js/state.js` | Client-side state management |
 | `js/ui.js` | DOM manipulation, rendering helpers |
 | `index.html` | Single-page application markup |
@@ -63,6 +62,8 @@ A customer support chat assistant for RealXmarket, built with a Flask backend an
 
 ```bash
 OPENAI_API_KEY=sk-...  # Required for OpenAI API access
+OPENAI_MODEL=gpt-4o
+MAX_CONTEXT_WINDOW=8192
 ```
 
 ## Running the Project

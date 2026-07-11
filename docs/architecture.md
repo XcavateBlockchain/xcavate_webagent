@@ -74,10 +74,10 @@ GitBook MCP client for documentation search:
 
 ## Frontend (JavaScript)
 
-### js/config.js
-Configuration constants:
-- `DEFAULT_MODEL = "gpt-4o"`
-- `MAX_CONTEXT_WINDOW = 8192`
+### Runtime config
+Configuration comes from `/api/config`, which is populated from `.env` values:
+- `OPENAI_MODEL`
+- `MAX_CONTEXT_WINDOW`
 
 ### js/api.js
 API client module:

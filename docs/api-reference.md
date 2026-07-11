@@ -113,10 +113,14 @@ Search RealXmarket documentation directly.
 
 ## Frontend Modules
 
-### js/config.js
-```javascript
-export const DEFAULT_MODEL = "gpt-4o";
-export const MAX_CONTEXT_WINDOW = 8192;
+### Runtime config
+The frontend reads runtime values from `GET /api/config`.
+
+```json
+{
+  "default_model": "gpt-4o",
+  "max_context_window": 8192
+}
 ```
 
 ---

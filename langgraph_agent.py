@@ -7,10 +7,6 @@ from langgraph.graph.message import add_messages
 from langchain_core.messages import ToolMessage, SystemMessage, convert_to_messages
 import os
 
-
-def get_openai_model() -> str:
-    return os.environ.get("OPENAI_MODEL")
-
 # Tool: RealXmarket documentation search (via GitBook MCP)
 @tool
 def search_realxmarket_docs(query: str) -> str:
@@ -39,15 +35,13 @@ GUIDELINES:
 - If a question is outside RealXmarket's scope (general crypto advice, third-party services), politely redirect to RealXmarket-specific topics"""
 
 # LLM with tool binding - uses OpenAI API
-def create_llm_with_tools(model_name: str = None):
+def create_llm_with_tools():
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
         raise ValueError("OPENAI_API_KEY environment variable not set")
 
-    resolved_model = model_name or get_openai_model()
-
     llm = ChatOpenAI(
-        model=resolved_model,
+        model=os.environ.get("OPENAI_MODEL"),
         temperature=0.1,
         api_key=api_key
     )
@@ -133,9 +127,8 @@ def final_answer_node(state: AgentState, llm):
     # Use LLM without tools for final answer
     from langchain_openai import ChatOpenAI
     api_key = os.environ.get("OPENAI_API_KEY")
-    resolved_model = get_openai_model()
     simple_llm = ChatOpenAI(
-        model=resolved_model,
+        model=os.environ.get("OPENAI_MODEL"),
         temperature=0.1,
         api_key=api_key
     )
@@ -143,8 +136,8 @@ def final_answer_node(state: AgentState, llm):
     return {"messages": [response], "tool_output": ""}
 
 # Create workflow
-def create_agent_graph(model: str = None):
-    llm = create_llm_with_tools(model)
+def create_agent_graph():
+    llm = create_llm_with_tools()
 
     workflow = StateGraph(AgentState)
 
@@ -172,7 +165,7 @@ def create_agent_graph(model: str = None):
     return workflow.compile(checkpointer=None)
 
 # Streaming version - handles tool calls and streams tokens
-def stream_agent_response(messages: List[dict], model: str = None):
+def stream_agent_response(messages: List[dict]):
     from langchain_core.messages import SystemMessage, AIMessage, convert_to_messages
 
     # Convert messages
@@ -183,8 +176,7 @@ def stream_agent_response(messages: List[dict], model: str = None):
     if not has_system:
         msg_list = [SystemMessage(content=SYSTEM_PROMPT)] + list(msg_list)
 
-    resolved_model = model or get_openai_model()
-    llm = create_llm_with_tools(resolved_model)
+    llm = create_llm_with_tools()
 
     # First invocation to check for tool calls
     response = llm.invoke(msg_list)
@@ -214,7 +206,7 @@ def stream_agent_response(messages: List[dict], model: str = None):
             ))
 
             # Stream the final response
-            simple_llm = ChatOpenAI(model=resolved_model, temperature=0.1, api_key=os.environ.get("OPENAI_API_KEY"))
+            simple_llm = ChatOpenAI(model=os.environ.get("OPENAI_MODEL"), temperature=0.1, api_key=os.environ.get("OPENAI_API_KEY"))
             for chunk in simple_llm.stream(msg_list):
                 if hasattr(chunk, 'content') and chunk.content:
                     yield {"messages": [chunk]}
@@ -227,7 +219,7 @@ def stream_agent_response(messages: List[dict], model: str = None):
             return
 
     # No tool call - stream the response directly
-    simple_llm = ChatOpenAI(model=resolved_model, temperature=0.1, api_key=os.environ.get("OPENAI_API_KEY"))
+    simple_llm = ChatOpenAI(model=os.environ.get("OPENAI_MODEL"), temperature=0.1, api_key=os.environ.get("OPENAI_API_KEY"))
     for chunk in simple_llm.stream(msg_list):
         if hasattr(chunk, 'content') and chunk.content:
             yield {"messages": [chunk]}

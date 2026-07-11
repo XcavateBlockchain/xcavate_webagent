@@ -110,10 +110,10 @@ ui.dom.settingsBtn.addEventListener('click', () => {
 ## Common Tasks
 
 ### Change the AI Model
-Update `DEFAULT_MODEL` in `js/config.js` and default parameters in Python files.
+Update `OPENAI_MODEL` in your `.env` file. The frontend reads it from `/api/config`.
 
 ### Adjust Context Window Size
-Update `MAX_CONTEXT_WINDOW` in `js/config.js`.
+Update `MAX_CONTEXT_WINDOW` in your `.env` file.
 
 ### Add Quick Action Buttons
 Add buttons in `index.html` with `data-prompt` attribute:
@@ -191,7 +191,6 @@ xcavate-web-assistant/
 ├── js/
 │   ├── app.js            # Main application logic
 │   ├── api.js            # API client & streaming
-│   ├── config.js         # Configuration constants
 │   ├── state.js          # State management
 │   └── ui.js             # UI rendering helpers
 ├── logs/                 # Chat history storage

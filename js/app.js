@@ -1,5 +1,4 @@
 // js/app.js
-import * as config from './config.js';
 import * as api from './api.js';
 import * as state from './state.js';
 import * as ui from './ui.js';
@@ -8,6 +7,10 @@ import { setWalletInfo } from './api.js';
 
 let currentAbortController = null;
 let currentAiMessageElement = null;
+let runtimeConfig = {
+    default_model: null,
+    max_context_window: null,
+};
 
 const DEFAULT_QUICK_REPLIES = ['Help Me Fix It', 'Create Support Ticket'];
 
@@ -60,7 +63,7 @@ async function loadChat(chatId) {
     try {
         const chatData = await api.getChat(chatId);
         if (chatData && chatData.id) {
-            state.setCurrentModel(config.DEFAULT_MODEL);
+            state.setCurrentModel(runtimeConfig.default_model);
             ui.updateChatTitle(state.getCurrentModel());
             
             state.setActiveChat(chatData.id, chatData);
@@ -270,6 +273,8 @@ async function initializeMCPStatus() {
 function estimateTokens(text) { return Math.ceil(text.length / 4); }
 
 function updateTotalTokenCount() {
+    if (runtimeConfig.max_context_window == null) return;
+
     const currentPrompt = ui.dom.promptInput.value.trim();
     const attachments = state.getAttachments();
     
@@ -287,7 +292,7 @@ function updateTotalTokenCount() {
     }
 
     const tokenCount = estimateTokens(combinedText);
-    const maxTokens = config.MAX_CONTEXT_WINDOW;
+    const maxTokens = runtimeConfig.max_context_window;
     ui.updateTokenUI(tokenCount, maxTokens);
 }
 
@@ -383,13 +388,12 @@ async function init() {
     ui.showLanding();
 
     try {
-        const runtimeConfig = await api.getRuntimeConfig();
-        config.setDefaultModel(runtimeConfig?.default_model);
+        runtimeConfig = await api.getRuntimeConfig();
     } catch (error) {
-        console.warn('Failed to load runtime model config, using frontend fallback:', error);
+        console.warn('Failed to load runtime config:', error);
     }
 
-    state.setCurrentModel(config.DEFAULT_MODEL);
+    state.setCurrentModel(runtimeConfig.default_model);
 
     // Set initial title
     ui.updateChatTitle(state.getCurrentModel());

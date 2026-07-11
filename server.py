@@ -62,7 +62,10 @@ def mcp_status():
 
 @app.route('/api/config', methods=['GET'])
 def runtime_config():
-    return jsonify({"default_model": get_openai_model()})
+    return jsonify({
+        "default_model": get_openai_model(),
+        "max_context_window": int(os.environ.get("MAX_CONTEXT_WINDOW"))
+    })
 
 
 @app.route('/api/web-search', methods=['POST'])
@@ -77,13 +80,12 @@ def web_search():
 def chat_stream():
     data = request.json
     messages = data.get('messages', [])
-    model = get_openai_model()
 
     def generate():
         try:
             from langgraph_agent import stream_agent_response
 
-            for event in stream_agent_response(messages, model):
+            for event in stream_agent_response(messages):
                 if "messages" in event:
                     last_msg = event["messages"][-1]
                     if hasattr(last_msg, 'content'):

@@ -128,14 +128,13 @@ The server will automatically connect to the GitBook MCP server at `https://doc-
 |----------|----------|-------------|
 | `OPENAI_API_KEY` | Yes | Your OpenAI API key |
 
-### Default Settings
+### Runtime Settings
 
-Edit `js/config.js` to customize:
+Set these in your `.env` file. The backend exposes them to the frontend through `/api/config`.
 
-```javascript
-// js/config.js
-export const DEFAULT_MODEL = "gpt-4o";
-export const MAX_CONTEXT_WINDOW = 8192;
+```bash
+OPENAI_MODEL=gpt-4o
+MAX_CONTEXT_WINDOW=8192
 ```
 
 ---
