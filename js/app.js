@@ -3,6 +3,7 @@ import * as api from './api.js';
 import * as state from './state.js';
 import * as ui from './ui.js';
 import * as polkadotAuth from './polkadot-auth.js';
+import { initTicketForm, showTicketView } from './ticket-form.js';
 import { setWalletInfo } from './api.js';
 
 let currentAbortController = null;
@@ -27,6 +28,9 @@ async function initializeWalletStatus() {
         state.setWalletAuth(storedAddress, null, { address: storedAddress, isConnected: true });
         console.log('[Wallet] Restored:', storedAddress.slice(0, 8) + '...');
     }
+
+    // Initialize ticket form after wallet status is restored
+    await initTicketForm();
 }
 
 // Auto-connect wallet if Polkadot extension is available
@@ -312,6 +316,10 @@ function navigateToLanding() {
     ui.showLanding();
 }
 
+function navigateToTicket() {
+    showTicketView();
+}
+
 // --- LANDING PAGE EVENT BINDING ---
 
 function bindLandingPageEvents() {
@@ -419,6 +427,16 @@ async function init() {
 
     // Bind landing page events
     bindLandingPageEvents();
+
+    // Bind ticket navigation (floating button)
+    const floatingTicketBtn = document.getElementById('floating-ticket-btn');
+    if (floatingTicketBtn) {
+        floatingTicketBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            navigateToTicket();
+        });
+    }
 
     // Start first chat (preloads state)
     await startNewChat();

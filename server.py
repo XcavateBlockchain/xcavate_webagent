@@ -3,6 +3,8 @@ import os
 import json
 import sys
 import logging
+import re
+import fcntl
 from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory
 from flask import Response
@@ -14,6 +16,19 @@ load_dotenv(override=False)
 
 def get_openai_model() -> str:
     return os.environ.get("OPENAI_MODEL")
+
+
+def get_env_int(name: str):
+    raw_value = os.environ.get(name)
+    if raw_value is None:
+        raise ValueError(f"{name} environment variable not set")
+
+    cleaned_value = raw_value.strip().strip('"\'').rstrip(';')
+    match = re.match(r"^\d+", cleaned_value)
+    if not match:
+        raise ValueError(f"{name} must be an integer, got {raw_value!r}")
+
+    return int(match.group(0))
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -49,6 +64,11 @@ LOGS_DIR = 'logs'
 if not os.path.exists(LOGS_DIR):
     os.makedirs(LOGS_DIR)
 
+TICKETS_DIR = 'tickets'
+TICKETS_FILE = os.path.join(TICKETS_DIR, 'tickets.json')
+if not os.path.exists(TICKETS_DIR):
+    os.makedirs(TICKETS_DIR)
+
 
 @app.route('/')
 def index():
@@ -64,7 +84,7 @@ def mcp_status():
 def runtime_config():
     return jsonify({
         "default_model": get_openai_model(),
-        "max_context_window": int(os.environ.get("MAX_CONTEXT_WINDOW"))
+        "max_context_window": get_env_int("MAX_CONTEXT_WINDOW")
     })
 
 
@@ -153,10 +173,18 @@ def save_chat():
     chat_data['datetime'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     filepath = os.path.join(LOGS_DIR, f"{chat_id}.json")
+    lock_file = filepath + '.lock'
+
     try:
-        with open(filepath, 'w', encoding='utf-8') as f:
-            json.dump(chat_data, f, indent=2, ensure_ascii=False)
-        return jsonify({"success": True, "id": chat_id})
+        # Use file locking for concurrent access safety
+        with open(lock_file, 'w') as f:
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+            try:
+                with open(filepath, 'w', encoding='utf-8') as tf:
+                    json.dump(chat_data, tf, indent=2, ensure_ascii=False)
+                return jsonify({"success": True, "id": chat_id})
+            finally:
+                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -198,6 +226,62 @@ def log_wallet_event():
         return jsonify({"success": True})
     except Exception as e:
         logger.error(f"Error writing wallet log: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/tickets', methods=['POST'])
+def create_ticket():
+    data = request.json
+
+    # Validate required fields
+    required_fields = ['ticket_id', 'wallet_address', 'title', 'category', 'priority', 'description']
+    for field in required_fields:
+        if field not in data:
+            return jsonify({"error": f"Missing required field: {field}"}), 400
+
+    # Create ticket entry
+    ticket = {
+        "ticket_id": data['ticket_id'],
+        "wallet_address": data['wallet_address'],
+        "title": data['title'],
+        "category": data['category'],
+        "priority": data['priority'],
+        "description": data['description'],
+        "status": "open",
+        "datetime": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    }
+
+    try:
+        # Use file locking to prevent race conditions with concurrent users
+        lock_file = TICKETS_FILE + '.lock'
+
+        # Create lock file if it doesn't exist
+        with open(lock_file, 'w') as f:
+            # Acquire exclusive lock (blocks until available)
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+
+            try:
+                # Load existing tickets
+                tickets = []
+                if os.path.exists(TICKETS_FILE):
+                    with open(TICKETS_FILE, 'r', encoding='utf-8') as tf:
+                        tickets = json.load(tf)
+
+                # Add new ticket
+                tickets.append(ticket)
+
+                # Save back to file
+                with open(TICKETS_FILE, 'w', encoding='utf-8') as tf:
+                    json.dump(tickets, tf, indent=2, ensure_ascii=False)
+
+                logger.info(f"Ticket created: {data['ticket_id']} for wallet {data['wallet_address'][:8]}...")
+                return jsonify({"success": True, "ticket_id": data['ticket_id']})
+            finally:
+                # Release lock
+                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+
+    except Exception as e:
+        logger.error(f"Error creating ticket: {e}")
         return jsonify({"error": str(e)}), 500
 
 

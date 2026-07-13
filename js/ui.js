@@ -21,6 +21,7 @@ export const dom = {
     fileInput: document.getElementById('file-input'),
     landingPage: document.getElementById('landing-page'),
     chatView: document.getElementById('chat-view'),
+    ticketView: document.getElementById('ticket-view'),
     openChatBtn: document.getElementById('open-chat-btn'),
     mcpStatusIndicator: document.getElementById('mcp-status-indicator'),
 };
@@ -29,11 +30,19 @@ export const dom = {
 export function showLanding() {
     if (dom.landingPage) dom.landingPage.style.display = 'flex';
     if (dom.chatView) dom.chatView.style.display = 'none';
+    if (dom.ticketView) dom.ticketView.style.display = 'none';
 }
 
 export function showChat() {
     if (dom.landingPage) dom.landingPage.style.display = 'none';
     if (dom.chatView) dom.chatView.style.display = 'flex';
+    if (dom.ticketView) dom.ticketView.style.display = 'none';
+}
+
+export function showTicketView() {
+    if (dom.landingPage) dom.landingPage.style.display = 'none';
+    if (dom.chatView) dom.chatView.style.display = 'none';
+    if (dom.ticketView) dom.ticketView.style.display = 'flex';
 }
 
 // Update chat title with model name (now shown in sidebar next to title)

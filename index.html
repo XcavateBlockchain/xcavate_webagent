@@ -114,6 +114,105 @@
                     <li><button class="faq-item" data-prompt="Where can I see pending actions?">Where can I see pending actions?</button></li>
                 </ul>
             </section>
+
+            <!-- Floating Ticket Button -->
+            <button id="floating-ticket-btn" class="floating-ticket-btn" data-navigate-to="ticket">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                <span>Create Ticket</span>
+            </button>
+        </div>
+
+        <!-- ==================== TICKET VIEW ==================== -->
+        <div class="ticket-container" id="ticket-view" style="display:none;">
+            <header class="app-header">
+                <button id="ticket-back-btn" aria-label="Go back">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <h1>Support Ticket</h1>
+                <div id="ticket-wallet-indicator" style="display: none;"></div>
+            </header>
+
+            <!-- Ticket Form -->
+            <form id="ticket-form" class="ticket-form">
+                <div class="ticket-form-container">
+                    <!-- Issue Title -->
+                    <div class="form-group">
+                        <label for="ticket-title">
+                            Issue Title
+                            <span class="info-icon" title="Enter a brief, descriptive title for your issue (e.g., 'Failed Transaction #12345')">ℹ️</span>
+                        </label>
+                        <input type="text" id="ticket-title" placeholder="Brief description of your issue" required>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="form-group">
+                        <label for="ticket-category">
+                            Category
+                            <span class="info-icon" title="Select the category that best matches your issue">ℹ️</span>
+                        </label>
+                        <select id="ticket-category" required>
+                            <option value="">Select a category...</option>
+                            <option value="account">Account &amp; Security</option>
+                            <option value="transaction">Transaction Issues</option>
+                            <option value="payment">Payment &amp; Billing</option>
+                            <option value="technical">Technical Support</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <!-- Priority -->
+                    <div class="form-group">
+                        <label for="ticket-priority">
+                            Priority
+                            <span class="info-icon" title="Select priority based on urgency: Low (routine), Medium (some impact), High (significant disruption), Urgent (critical/blocking)">ℹ️</span>
+                        </label>
+                        <select id="ticket-priority" required>
+                            <option value="">Select priority...</option>
+                            <option value="low">Low - Routine inquiry</option>
+                            <option value="medium">Medium - Some impact</option>
+                            <option value="high">High - Significant disruption</option>
+                            <option value="urgent">Urgent - Critical issue</option>
+                        </select>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label for="ticket-description">
+                            Issue Description
+                            <span class="info-icon" title="Provide detailed information about your issue including steps taken, error messages, and expected behavior">ℹ️</span>
+                        </label>
+                        <textarea id="ticket-description" placeholder="Please describe your issue in detail..." rows="6" required></textarea>
+                    </div>
+
+                    <!-- Wallet Display -->
+                    <div class="ticket-wallet-info">
+                        <span class="wallet-label">Submitting as:</span>
+                        <span id="ticket-wallet-address" class="wallet-address-display"></span>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="ticket-submit-btn" class="ticket-submit-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        <span>Submit Ticket</span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Success State -->
+            <div id="ticket-success" class="ticket-success" style="display:none;">
+                <div class="success-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <h2>Ticket Submitted!</h2>
+                <p>Your support ticket has been created successfully.</p>
+                <div class="ticket-reference">
+                    <span class="reference-label">Ticket Number:</span>
+                    <span id="submitted-ticket-number" class="ticket-number"></span>
+                </div>
+                <p class="success-note">We'll review your issue and get back to you soon.</p>
+                <button id="ticket-new-ticket-btn" class="new-ticket-btn">Submit Another Ticket</button>
+                <button id="ticket-home-btn" class="home-btn">Back to Home</button>
+            </div>
         </div>
 
         <!-- ==================== CHAT VIEW ==================== -->
