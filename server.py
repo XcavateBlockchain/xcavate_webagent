@@ -4,11 +4,16 @@ import json
 import sys
 import logging
 import re
-import fcntl
+import boto3
+from botocore.exceptions import ClientError
 from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory
 from flask import Response
 from dotenv import load_dotenv
+
+# Initialize DynamoDB client
+dynamodb = boto3.resource('dynamodb', region_name='eu-north-1')
+tickets_table = dynamodb.Table('realxmarket-tickets')
 
 
 load_dotenv(override=False)
@@ -63,11 +68,6 @@ def serve_js(filename):
 LOGS_DIR = 'logs'
 if not os.path.exists(LOGS_DIR):
     os.makedirs(LOGS_DIR)
-
-TICKETS_DIR = 'tickets'
-TICKETS_FILE = os.path.join(TICKETS_DIR, 'tickets.json')
-if not os.path.exists(TICKETS_DIR):
-    os.makedirs(TICKETS_DIR)
 
 
 @app.route('/')
@@ -252,34 +252,15 @@ def create_ticket():
     }
 
     try:
-        # Use file locking to prevent race conditions with concurrent users
-        lock_file = TICKETS_FILE + '.lock'
+        # Write directly to DynamoDB
+        tickets_table.put_item(Item=ticket)
+        logger.info(f"Ticket written to DynamoDB: {data['ticket_id']} for wallet {data['wallet_address'][:8]}...")
+        return jsonify({"success": True, "ticket_id": data['ticket_id']})
 
-        # Create lock file if it doesn't exist
-        with open(lock_file, 'w') as f:
-            # Acquire exclusive lock (blocks until available)
-            fcntl.flock(f.fileno(), fcntl.LOCK_EX)
-
-            try:
-                # Load existing tickets
-                tickets = []
-                if os.path.exists(TICKETS_FILE):
-                    with open(TICKETS_FILE, 'r', encoding='utf-8') as tf:
-                        tickets = json.load(tf)
-
-                # Add new ticket
-                tickets.append(ticket)
-
-                # Save back to file
-                with open(TICKETS_FILE, 'w', encoding='utf-8') as tf:
-                    json.dump(tickets, tf, indent=2, ensure_ascii=False)
-
-                logger.info(f"Ticket created: {data['ticket_id']} for wallet {data['wallet_address'][:8]}...")
-                return jsonify({"success": True, "ticket_id": data['ticket_id']})
-            finally:
-                # Release lock
-                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
-
+    except ClientError as e:
+        error_code = e.response['Error']['Code']
+        logger.error(f"DynamoDB error ({error_code}): {e.response['Error']['Message']}")
+        return jsonify({"error": f"DynamoDB write failed: {error_code}"}), 500
     except Exception as e:
         logger.error(f"Error creating ticket: {e}")
         return jsonify({"error": str(e)}), 500
