@@ -158,3 +158,32 @@ export function formatAddress(address) {
 export function getExtensionInstallUrl() {
     return 'https://polkadot.js.org/extension/';
 }
+
+/**
+ * Connect wallet for ticket creation (user-initiated)
+ * Returns the connected address or null if cancelled/failed
+ */
+export async function connectWalletForTicket() {
+    try {
+        const isInstalled = await isPolkadotExtensionInstalled();
+        if (!isInstalled) {
+            alert('Polkadot extension not found. Please install it to create tickets.');
+            return null;
+        }
+
+        const accounts = await getAvailableAccounts();
+        if (!accounts || accounts.length === 0) {
+            alert('No accounts found in your Polkadot extension.');
+            return null;
+        }
+
+        const selectedAccount = accounts[0];
+        const authData = await connectWallet(selectedAccount.address);
+        return authData.address;
+
+    } catch (error) {
+        console.error('[Wallet] Connection failed:', error.message);
+        alert('Failed to connect wallet: ' + error.message);
+        return null;
+    }
+}

@@ -16,12 +16,10 @@ let runtimeConfig = {
 const DEFAULT_QUICK_REPLIES = ['Help Me Fix It', 'Create Support Ticket'];
 
 // --- WALLET AUTHENTICATION ---
-// Wallet connects automatically on page load
+// Wallet only connects when user clicks "Create Ticket" button
 
 async function initializeWalletStatus() {
-    const isInstalled = await polkadotAuth.isPolkadotExtensionInstalled();
-
-    // Check for previously connected wallet
+    // Check for previously connected wallet (restore without prompting)
     const storedAddress = localStorage.getItem('walletAddress');
     if (storedAddress) {
         api.setWalletInfo(storedAddress, true);
@@ -33,33 +31,6 @@ async function initializeWalletStatus() {
     await initTicketForm();
 }
 
-// Auto-connect wallet if Polkadot extension is available
-async function autoConnectWallet() {
-    try {
-        const isInstalled = await polkadotAuth.isPolkadotExtensionInstalled();
-        if (!isInstalled) return;
-
-        const accounts = await polkadotAuth.getAvailableAccounts();
-        if (!accounts || accounts.length === 0) return;
-
-        const selectedAccount = accounts[0];
-        const authData = await polkadotAuth.connectWallet(selectedAccount.address);
-
-        state.setWalletAuth(authData.address, authData.signature, authData);
-        localStorage.setItem('walletAddress', authData.address);
-        localStorage.setItem('walletAuthData', JSON.stringify({
-            address: authData.address,
-            signature: authData.signature,
-            connectedAt: Date.now()
-        }));
-
-        api.setWalletInfo(authData.address, true);
-        console.log('[Wallet] Connected:', authData.address.slice(0, 8) + '...');
-
-    } catch (error) {
-        console.error('[Wallet] Connection failed:', error.message);
-    }
-}
 
 // --- BUSINESS LOGIC AND EVENT HANDLING ---
 
@@ -406,9 +377,8 @@ async function init() {
     // Set initial title
     ui.updateChatTitle(state.getCurrentModel());
 
-    // Initialize wallet status and auto-connect
+    // Initialize wallet status (no auto-connect)
     await initializeWalletStatus();
-    await autoConnectWallet();
 
     // Initialize MCP connection and status display
     await initializeMCPStatus();

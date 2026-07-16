@@ -29,7 +29,7 @@ function generateTicketNumber() {
     return `TICKET-${timestamp}-${random}`;
 }
 
-// Check wallet connection
+// Check wallet connection (returns address if already connected)
 async function checkWalletConnection() {
     const storedAddress = localStorage.getItem('walletAddress');
     if (!storedAddress) {
@@ -38,8 +38,24 @@ async function checkWalletConnection() {
     return storedAddress;
 }
 
+// Connect wallet or use existing connection for ticket creation
+async function ensureWalletConnected() {
+    const existingAddress = await checkWalletConnection();
+    if (existingAddress) {
+        return existingAddress;
+    }
+    // No existing connection, prompt user to connect
+    return await polkadotAuth.connectWalletForTicket();
+}
+
 // Display wallet address in form
 function displayWalletAddress(address) {
+    if (!address) {
+        if (dom.ticketWalletIndicator) {
+            dom.ticketWalletIndicator.style.display = 'none';
+        }
+        return;
+    }
     if (dom.ticketWalletAddress) {
         dom.ticketWalletAddress.textContent = address.slice(0, 8) + '...' + address.slice(-6);
     }
@@ -120,17 +136,8 @@ function navigateToHome() {
 
 // Initialize ticket form
 export async function initTicketForm() {
-    // Check wallet connection on load
-    const walletAddress = await checkWalletConnection();
-
-    if (!walletAddress) {
-        showError('Please connect your wallet before submitting a ticket.');
-        // Navigate back to landing page
-        navigateToHome();
-        return false;
-    }
-
-    displayWalletAddress(walletAddress);
+    // Don't check wallet on load - only check when user tries to submit
+    displayWalletAddress();
 
     // Bind events
     if (dom.ticketBackBtn) {
@@ -151,10 +158,10 @@ export async function initTicketForm() {
         dom.ticketForm.addEventListener('submit', async (event) => {
             event.preventDefault();
 
-            // Validate wallet still connected
-            const walletAddress = await checkWalletConnection();
+            // Ensure wallet is connected (prompt user if not)
+            const walletAddress = await ensureWalletConnected();
             if (!walletAddress) {
-                showError('Your wallet disconnected. Please reconnect and try again.');
+                showError('Please connect your wallet to submit a ticket.');
                 navigateToHome();
                 return;
             }
