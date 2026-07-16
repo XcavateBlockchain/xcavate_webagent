@@ -1,78 +1,84 @@
 // js/polkadot-auth.js - Polkadot extension wallet authentication module
-// Uses the injected extension API directly (window.injectedWeb3)
+// Works in both standalone and iframe/injected contexts
 
 let connectedAccount = null;
-let injectedExtension = null;
+let enabledInjector = null;
+
+/**
+ * Check if Polkadot extension is available in current window
+ */
+function isPolkadotAvailable() {
+    return !!(window.injectedWeb3?.['polkadot-js'] || window.web3FromAddress);
+}
 
 /**
  * Get the Polkadot injected extension
- * Returns the extension or null if not available
+ * Enables the extension and returns the injector
  */
 async function getInjectedExtension() {
-    if (injectedExtension) {
-        return injectedExtension;
+    if (enabledInjector) {
+        return enabledInjector;
     }
 
     console.log('[PolkadotAuth] Checking for Polkadot extension...');
     console.log('[PolkadotAuth] window.injectedWeb3:', !!window.injectedWeb3);
+    console.log('[PolkadotAuth] window.injectedWeb3.polkadot-js:', !!window.injectedWeb3?.['polkadot-js']);
     console.log('[PolkadotAuth] window.web3FromAddress:', !!window.web3FromAddress);
+    console.log('[PolkadotAuth] Is in iframe:', window !== window.top);
 
-    // Wait for extension to be injected (it may take a moment on page load)
-    const maxWaitTime = 5000;
-    const checkInterval = 100;
+    // Wait for extension to be injected (may take longer in iframes)
+    const maxWaitTime = 10000;
+    const checkInterval = 200;
     const startTime = Date.now();
 
-    while ((!window.injectedWeb3 && !window.web3FromAddress) && Date.now() - startTime < maxWaitTime) {
+    while (!isPolkadotAvailable() && Date.now() - startTime < maxWaitTime) {
+        console.log(`[PolkadotAuth] Waiting for extension... (${Date.now() - startTime}ms)`);
         await new Promise(resolve => setTimeout(resolve, checkInterval));
     }
 
-    console.log('[PolkadotAuth] After wait - window.injectedWeb3:', !!window.injectedWeb3);
-    console.log('[PolkadotAuth] After wait - window.web3FromAddress:', !!window.web3FromAddress);
+    console.log('[PolkadotAuth] After wait - available:', isPolkadotAvailable());
 
-    // Try modern API first (web3FromAddress / web3Accounts)
-    if (window.web3FromAddress || window.web3Accounts) {
-        console.log('[PolkadotAuth] Using modern Polkadot.js API');
-        // Extension is available - we don't need to 'enable' it with modern API
-        injectedExtension = {
-            accounts: {
-                subscribe: (callback) => {
-                    if (window.web3Accounts) {
-                        window.web3Accounts().then(accounts => {
-                            callback(accounts.map(acc => ({
-                                address: acc.address,
-                                meta: acc.meta || {}
-                            })));
-                        }).catch(err => {
-                            console.error('[PolkadotAuth] Error getting accounts:', err);
-                            callback([]);
-                        });
-                    } else {
-                        callback([]);
-                    }
-                }
-            },
-            signer: {
-                signRaw: async ({ address, type, data }) => {
-                    if (window.web3Signer) {
-                        const injector = await window.web3FromAddress(address);
-                        return injector.signer.signRaw({ address, type, data });
-                    }
-                    throw new Error('No signer available');
-                }
+    try {
+        // Try legacy API first (polkadot-js.enable)
+        if (window.injectedWeb3?.['polkadot-js']?.enable) {
+            console.log('[PolkadotAuth] Enabling via polkadot-js.enable...');
+            enabledInjector = await window.injectedWeb3['polkadot-js'].enable('xCavate WebAgent');
+            console.log('[PolkadotAuth] Got injector:', !!enabledInjector);
+            return enabledInjector;
+        }
+
+        // Modern API requires explicit enable via web3Enable
+        if (window.web3Enable || window.web3FromAddress) {
+            console.log('[PolkadotAuth] Using modern Polkadot.js API (web3Enable)...');
+
+            // Import web3Enable from the extension if not already available as global
+            if (!window.web3Enable) {
+                // The extension should have injected web3Enable globally
+                console.error('[PolkadotAuth] web3Enable not found - extension may not be fully loaded');
+                return null;
             }
-        };
-        return injectedExtension;
-    }
 
-    // Fallback to legacy API
-    if (window.injectedWeb3 && window.injectedWeb3['polkadot-js'] && window.injectedWeb3['polkadot-js'].enable) {
-        console.log('[PolkadotAuth] Using legacy Polkadot.js API');
-        injectedExtension = await window.injectedWeb3['polkadot-js'].enable('xCavate WebAgent');
-        return injectedExtension;
-    }
+            // Enable the extension (this triggers the popup if needed)
+            const enabled = await window.web3Enable('xCavate WebAgent');
+            console.log('[PolkadotAuth] web3Enable result:', enabled);
 
-    console.log('[PolkadotAuth] Polkadot extension not found');
-    return null;
+            if (!enabled || enabled.length === 0) {
+                console.log('[PolkadotAuth] No extensions enabled');
+                return null;
+            }
+
+            enabledInjector = enabled[0];
+            console.log('[PolkadotAuth] Got injector from web3Enable:', !!enabledInjector);
+            return enabledInjector;
+        }
+
+        console.log('[PolkadotAuth] No compatible Polkadot API found');
+        return null;
+
+    } catch (error) {
+        console.error('[PolkadotAuth] Error enabling extension:', error);
+        return null;
+    }
 }
 
 /**
@@ -92,29 +98,53 @@ export async function isPolkadotExtensionInstalled() {
  * Returns array of account objects with { address, name }
  */
 export async function getAvailableAccounts() {
+    // Ensure extension is enabled first
     const ext = await getInjectedExtension();
     if (!ext) {
         throw new Error('Polkadot extension not found');
     }
 
-    return new Promise((resolve) => {
-        ext.accounts.subscribe((accounts) => {
-            if (accounts) {
-                resolve(accounts.map(acc => ({
-                    address: acc.address,
-                    name: acc.meta?.name || acc.address.slice(0, 8) + '...'
-                })));
-            } else {
-                resolve([]);
-            }
+    // Try to use web3Accounts if available (modern API)
+    if (window.web3Accounts) {
+        console.log('[PolkadotAuth] Getting accounts via web3Accounts...');
+        try {
+            const accounts = await window.web3Accounts();
+            console.log('[PolkadotAuth] Got accounts:', accounts.length);
+            return accounts.map(acc => ({
+                address: acc.address,
+                name: acc.meta?.name || acc.address.slice(0, 8) + '...'
+            }));
+        } catch (error) {
+            console.error('[PolkadotAuth] Error getting accounts via web3Accounts:', error);
+        }
+    }
+
+    // Fallback to ext.accounts.subscribe
+    if (ext.accounts && ext.accounts.subscribe) {
+        console.log('[PolkadotAuth] Getting accounts via ext.accounts.subscribe...');
+        return new Promise((resolve) => {
+            ext.accounts.subscribe((accounts) => {
+                if (accounts) {
+                    console.log('[PolkadotAuth] Received accounts via subscribe:', accounts.length);
+                    resolve(accounts.map(acc => ({
+                        address: acc.address,
+                        name: acc.meta?.name || acc.address.slice(0, 8) + '...'
+                    })));
+                } else {
+                    resolve([]);
+                }
+            });
         });
-    });
+    }
+
+    throw new Error('No accounts method available');
 }
 
 /**
  * Connect wallet and request signature for authentication
  */
 export async function connectWallet(accountAddress) {
+    // Ensure extension is enabled
     const ext = await getInjectedExtension();
     if (!ext) {
         throw new Error('Polkadot extension not installed');
@@ -123,10 +153,11 @@ export async function connectWallet(accountAddress) {
     const challengeMessage = `Authenticate with xCavate WebAgent\nTimestamp: ${Date.now()}\nAddress: ${accountAddress}`;
 
     let injector;
-    // Try modern API first
+    // Use web3FromAddress for modern API (works in both standalone and iframe)
     if (window.web3FromAddress) {
-        console.log('[PolkadotAuth] Getting injector via web3FromAddress');
+        console.log('[PolkadotAuth] Getting injector via web3FromAddress...');
         injector = await window.web3FromAddress(accountAddress);
+        console.log('[PolkadotAuth] Got injector:', !!injector);
     } else if (ext.signer) {
         console.log('[PolkadotAuth] Using ext.signer directly');
         injector = ext;
@@ -134,7 +165,11 @@ export async function connectWallet(accountAddress) {
         throw new Error('No signer available');
     }
 
-    console.log('[PolkadotAuth] Signer:', !!injector?.signer);
+    if (!injector?.signer) {
+        throw new Error('Injector has no signer capability');
+    }
+
+    console.log('[PolkadotAuth] Signing with address:', accountAddress);
 
     const result = await injector.signer.signRaw({
         address: accountAddress,
@@ -166,7 +201,17 @@ export async function signMessage(message) {
         throw new Error('No wallet connected');
     }
 
-    const injector = await window.web3FromAddress?.(connectedAccount.address) || getInjectedExtension();
+    let injector;
+    if (window.web3FromAddress) {
+        injector = await window.web3FromAddress(connectedAccount.address);
+    } else {
+        const ext = await getInjectedExtension();
+        if (!ext?.signer) {
+            throw new Error('No signer available');
+        }
+        injector = ext;
+    }
+
     const result = await injector.signer.signRaw({
         address: connectedAccount.address,
         type: 'bytes',
