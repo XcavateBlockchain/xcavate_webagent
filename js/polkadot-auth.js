@@ -13,20 +13,65 @@ async function getInjectedExtension() {
         return injectedExtension;
     }
 
+    console.log('[PolkadotAuth] Checking for Polkadot extension...');
+    console.log('[PolkadotAuth] window.injectedWeb3:', !!window.injectedWeb3);
+    console.log('[PolkadotAuth] window.web3FromAddress:', !!window.web3FromAddress);
+
     // Wait for extension to be injected (it may take a moment on page load)
     const maxWaitTime = 5000;
     const checkInterval = 100;
     const startTime = Date.now();
 
-    while (!window.injectedWeb3 && Date.now() - startTime < maxWaitTime) {
+    while ((!window.injectedWeb3 && !window.web3FromAddress) && Date.now() - startTime < maxWaitTime) {
         await new Promise(resolve => setTimeout(resolve, checkInterval));
     }
 
+    console.log('[PolkadotAuth] After wait - window.injectedWeb3:', !!window.injectedWeb3);
+    console.log('[PolkadotAuth] After wait - window.web3FromAddress:', !!window.web3FromAddress);
+
+    // Try modern API first (web3FromAddress / web3Accounts)
+    if (window.web3FromAddress || window.web3Accounts) {
+        console.log('[PolkadotAuth] Using modern Polkadot.js API');
+        // Extension is available - we don't need to 'enable' it with modern API
+        injectedExtension = {
+            accounts: {
+                subscribe: (callback) => {
+                    if (window.web3Accounts) {
+                        window.web3Accounts().then(accounts => {
+                            callback(accounts.map(acc => ({
+                                address: acc.address,
+                                meta: acc.meta || {}
+                            })));
+                        }).catch(err => {
+                            console.error('[PolkadotAuth] Error getting accounts:', err);
+                            callback([]);
+                        });
+                    } else {
+                        callback([]);
+                    }
+                }
+            },
+            signer: {
+                signRaw: async ({ address, type, data }) => {
+                    if (window.web3Signer) {
+                        const injector = await window.web3FromAddress(address);
+                        return injector.signer.signRaw({ address, type, data });
+                    }
+                    throw new Error('No signer available');
+                }
+            }
+        };
+        return injectedExtension;
+    }
+
+    // Fallback to legacy API
     if (window.injectedWeb3 && window.injectedWeb3['polkadot-js'] && window.injectedWeb3['polkadot-js'].enable) {
+        console.log('[PolkadotAuth] Using legacy Polkadot.js API');
         injectedExtension = await window.injectedWeb3['polkadot-js'].enable('xCavate WebAgent');
         return injectedExtension;
     }
 
+    console.log('[PolkadotAuth] Polkadot extension not found');
     return null;
 }
 
@@ -78,13 +123,18 @@ export async function connectWallet(accountAddress) {
     const challengeMessage = `Authenticate with xCavate WebAgent\nTimestamp: ${Date.now()}\nAddress: ${accountAddress}`;
 
     let injector;
+    // Try modern API first
     if (window.web3FromAddress) {
+        console.log('[PolkadotAuth] Getting injector via web3FromAddress');
         injector = await window.web3FromAddress(accountAddress);
     } else if (ext.signer) {
+        console.log('[PolkadotAuth] Using ext.signer directly');
         injector = ext;
     } else {
         throw new Error('No signer available');
     }
+
+    console.log('[PolkadotAuth] Signer:', !!injector?.signer);
 
     const result = await injector.signer.signRaw({
         address: accountAddress,

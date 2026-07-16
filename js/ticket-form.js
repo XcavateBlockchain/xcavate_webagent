@@ -136,8 +136,11 @@ function navigateToHome() {
 
 // Initialize ticket form
 export async function initTicketForm() {
-    // Don't check wallet on load - only check when user tries to submit
-    displayWalletAddress();
+    // Check for existing wallet connection and display if available
+    const existingAddress = await checkWalletConnection();
+    if (existingAddress) {
+        displayWalletAddress(existingAddress);
+    }
 
     // Bind events
     if (dom.ticketBackBtn) {
@@ -224,6 +227,12 @@ export function showTicketView() {
 
     // Reset form when showing view
     resetForm();
+
+    // Display wallet address if connected
+    const storedAddress = localStorage.getItem('walletAddress');
+    if (storedAddress) {
+        displayWalletAddress(storedAddress);
+    }
 }
 
 // Export DOM for external access
