@@ -51,24 +51,35 @@ async function getInjectedExtension() {
         if (window.web3Enable || window.web3FromAddress) {
             console.log('[PolkadotAuth] Using modern Polkadot.js API (web3Enable)...');
 
-            // Import web3Enable from the extension if not already available as global
+            // Wait for web3Enable to be available (other extensions may load first)
             if (!window.web3Enable) {
-                // The extension should have injected web3Enable globally
-                console.error('[PolkadotAuth] web3Enable not found - extension may not be fully loaded');
-                return null;
+                console.log('[PolkadotAuth] Waiting for web3Enable to be injected...');
+                const waitStart = Date.now();
+                while (!window.web3Enable && Date.now() - waitStart < 3000) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                if (!window.web3Enable) {
+                    console.error('[PolkadotAuth] web3Enable not found after waiting');
+                    return null;
+                }
             }
 
             // Enable the extension (this triggers the popup if needed)
+            // Note: web3Enable enables ALL Polkadot extensions, we filter for polkadot-js
             const enabled = await window.web3Enable('xCavate WebAgent');
-            console.log('[PolkadotAuth] web3Enable result:', enabled);
+            console.log('[PolkadotAuth] web3Enable result:', enabled?.map(e => e.name || e.source));
 
             if (!enabled || enabled.length === 0) {
                 console.log('[PolkadotAuth] No extensions enabled');
                 return null;
             }
 
-            enabledInjector = enabled[0];
-            console.log('[PolkadotAuth] Got injector from web3Enable:', !!enabledInjector);
+            // Prefer polkadot-js extension if available among enabled extensions
+            const polkadotJsExt = enabled.find(ext =>
+                ext.name === 'polkadot-js' || ext.source === 'polkadot-js'
+            );
+            enabledInjector = polkadotJsExt || enabled[0];
+            console.log('[PolkadotAuth] Selected injector:', enabledInjector.name || enabledInjector.source);
             return enabledInjector;
         }
 
