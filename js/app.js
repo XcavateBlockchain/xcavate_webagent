@@ -288,7 +288,18 @@ function navigateToLanding() {
 }
 
 function navigateToTicket() {
-    showTicketView();
+    const targetUrl = 'https://www.support.realxmarket.io/';
+    const currentHost = window.location.hostname;
+    const targetHost = new URL(targetUrl).hostname;
+
+    // Only redirect if not already on the support site
+    if (currentHost !== targetHost && !currentHost.endsWith('.' + targetHost)) {
+        // Use window.open to work correctly inside iframes
+        window.open(targetUrl, '_blank');
+    } else {
+        // Already on support site, show local view
+        showTicketView();
+    }
 }
 
 // --- LANDING PAGE EVENT BINDING ---
