@@ -1,14 +1,17 @@
-// js/polkadot-auth.js - Polkadot extension wallet authentication module
-// Works in both standalone and iframe/injected contexts
+// js/polkadot-auth.js - Polkadot wallet authentication (supports all Polkadot-compatible extensions)
+// Works with Polkadot.js, Talisman, SubWallet, and other Polkadot extensions
 
 let connectedAccount = null;
 let enabledInjector = null;
 
 /**
- * Check if Polkadot extension is available in current window
+ * Check if any Polkadot extension is available in current window
+ * Supports Polkadot.js, Talisman, SubWallet, and others
  */
 function isPolkadotAvailable() {
-    return !!(window.injectedWeb3?.['polkadot-js'] || window.web3FromAddress);
+    // Check for any injected Polkadot extension (not just polkadot-js)
+    const hasAnyExtension = window.injectedWeb3 && Object.keys(window.injectedWeb3).length > 0;
+    return !!(hasAnyExtension || window.web3FromAddress);
 }
 
 /**
@@ -22,7 +25,7 @@ async function getInjectedExtension() {
 
     console.log('[PolkadotAuth] Checking for Polkadot extension...');
     console.log('[PolkadotAuth] window.injectedWeb3:', !!window.injectedWeb3);
-    console.log('[PolkadotAuth] window.injectedWeb3.polkadot-js:', !!window.injectedWeb3?.['polkadot-js']);
+    console.log('[PolkadotAuth] Available extensions:', window.injectedWeb3 ? Object.keys(window.injectedWeb3) : 'none');
     console.log('[PolkadotAuth] window.web3FromAddress:', !!window.web3FromAddress);
     console.log('[PolkadotAuth] Is in iframe:', window !== window.top);
 
@@ -39,19 +42,11 @@ async function getInjectedExtension() {
     console.log('[PolkadotAuth] After wait - available:', isPolkadotAvailable());
 
     try {
-        // Try legacy API first (polkadot-js.enable)
-        if (window.injectedWeb3?.['polkadot-js']?.enable) {
-            console.log('[PolkadotAuth] Enabling via polkadot-js.enable...');
-            enabledInjector = await window.injectedWeb3['polkadot-js'].enable('xCavate WebAgent');
-            console.log('[PolkadotAuth] Got injector:', !!enabledInjector);
-            return enabledInjector;
-        }
-
-        // Modern API requires explicit enable via web3Enable
+        // Use modern API via web3Enable (works with ALL Polkadot extensions)
         if (window.web3Enable || window.web3FromAddress) {
-            console.log('[PolkadotAuth] Using modern Polkadot.js API (web3Enable)...');
+            console.log('[PolkadotAuth] Using Polkadot.js API (web3Enable)...');
 
-            // Wait for web3Enable to be available (other extensions may load first)
+            // Wait for web3Enable to be available
             if (!window.web3Enable) {
                 console.log('[PolkadotAuth] Waiting for web3Enable to be injected...');
                 const waitStart = Date.now();
@@ -64,22 +59,18 @@ async function getInjectedExtension() {
                 }
             }
 
-            // Enable the extension (this triggers the popup if needed)
-            // Note: web3Enable enables ALL Polkadot extensions, we filter for polkadot-js
+            // Enable all Polkadot extensions (web3Enable works with any Polkadot-compatible wallet)
             const enabled = await window.web3Enable('xCavate WebAgent');
-            console.log('[PolkadotAuth] web3Enable result:', enabled?.map(e => e.name || e.source));
+            console.log('[PolkadotAuth] Enabled extensions:', enabled?.map(e => e.name || e.source));
 
             if (!enabled || enabled.length === 0) {
                 console.log('[PolkadotAuth] No extensions enabled');
                 return null;
             }
 
-            // Prefer polkadot-js extension if available among enabled extensions
-            const polkadotJsExt = enabled.find(ext =>
-                ext.name === 'polkadot-js' || ext.source === 'polkadot-js'
-            );
-            enabledInjector = polkadotJsExt || enabled[0];
-            console.log('[PolkadotAuth] Selected injector:', enabledInjector.name || enabledInjector.source);
+            // Use the first available extension (user's chosen/default wallet)
+            enabledInjector = enabled[0];
+            console.log('[PolkadotAuth] Using injector:', enabledInjector.name || enabledInjector.source);
             return enabledInjector;
         }
 
@@ -93,7 +84,8 @@ async function getInjectedExtension() {
 }
 
 /**
- * Check if Polkadot.js extension is installed
+ * Check if any Polkadot-compatible extension is installed
+ * (Polkadot.js, Talisman, SubWallet, etc.)
  */
 export async function isPolkadotExtensionInstalled() {
     try {
@@ -259,10 +251,22 @@ export function formatAddress(address) {
 }
 
 /**
- * Get install URL for Polkadot.js extension
+ * Get install URLs for Polkadot-compatible extensions
  */
 export function getExtensionInstallUrl() {
+    // Return the main Polkadot.js extension, but users can also use Talisman, SubWallet, etc.
     return 'https://polkadot.js.org/extension/';
+}
+
+/**
+ * Get list of all available Polkadot extension install links
+ */
+export function getAvailableExtensionUrls() {
+    return {
+        'Polkadot.js': 'https://polkadot.js.org/extension/',
+        'Talisman': 'https://talisman.xyz/',
+        'SubWallet': 'https://subwallet.app/'
+    };
 }
 
 /**
@@ -273,13 +277,13 @@ export async function connectWalletForTicket() {
     try {
         const isInstalled = await isPolkadotExtensionInstalled();
         if (!isInstalled) {
-            alert('Polkadot extension not found. Please install it to create tickets.');
+            alert('No Polkadot wallet extension found. Please install Polkadot.js, Talisman, or SubWallet to create tickets.');
             return null;
         }
 
         const accounts = await getAvailableAccounts();
         if (!accounts || accounts.length === 0) {
-            alert('No accounts found in your Polkadot extension.');
+            alert('No accounts found in your Polkadot wallet. Make sure you have accounts set up in your extension.');
             return null;
         }
 
