@@ -42,11 +42,10 @@ async function getInjectedExtension() {
     console.log('[PolkadotAuth] After wait - available:', isPolkadotAvailable());
 
     try {
-        // Use modern API via web3Enable (works with ALL Polkadot extensions)
+        // First try: Modern API via web3Enable (works when Polkadot.js library is loaded)
         if (window.web3Enable || window.web3FromAddress) {
             console.log('[PolkadotAuth] Using Polkadot.js API (web3Enable)...');
 
-            // Wait for web3Enable to be available
             if (!window.web3Enable) {
                 console.log('[PolkadotAuth] Waiting for web3Enable to be injected...');
                 const waitStart = Date.now();
@@ -55,23 +54,41 @@ async function getInjectedExtension() {
                 }
                 if (!window.web3Enable) {
                     console.error('[PolkadotAuth] web3Enable not found after waiting');
-                    return null;
+                    // Fall through to try legacy API
+                } else {
+                    const enabled = await window.web3Enable('xCavate WebAgent');
+                    console.log('[PolkadotAuth] Enabled extensions:', enabled?.map(e => e.name || e.source));
+                    if (enabled && enabled.length > 0) {
+                        enabledInjector = enabled[0];
+                        console.log('[PolkadotAuth] Using injector:', enabledInjector.name || enabledInjector.source);
+                        return enabledInjector;
+                    }
+                }
+            } else {
+                const enabled = await window.web3Enable('xCavate WebAgent');
+                console.log('[PolkadotAuth] Enabled extensions:', enabled?.map(e => e.name || e.source));
+                if (enabled && enabled.length > 0) {
+                    enabledInjector = enabled[0];
+                    console.log('[PolkadotAuth] Using injector:', enabledInjector.name || enabledInjector.source);
+                    return enabledInjector;
                 }
             }
+        }
 
-            // Enable all Polkadot extensions (web3Enable works with any Polkadot-compatible wallet)
-            const enabled = await window.web3Enable('xCavate WebAgent');
-            console.log('[PolkadotAuth] Enabled extensions:', enabled?.map(e => e.name || e.source));
+        // Second try: Legacy API via window.injectedWeb3[extensionName].enable
+        if (window.injectedWeb3) {
+            const extensionNames = Object.keys(window.injectedWeb3);
+            console.log('[PolkadotAuth] Trying legacy API with extensions:', extensionNames);
 
-            if (!enabled || enabled.length === 0) {
-                console.log('[PolkadotAuth] No extensions enabled');
-                return null;
+            for (const extName of extensionNames) {
+                const ext = window.injectedWeb3[extName];
+                if (ext && ext.enable) {
+                    console.log('[PolkadotAuth] Enabling via', extName, '.enable...');
+                    enabledInjector = await ext.enable('xCavate WebAgent');
+                    console.log('[PolkadotAuth] Got injector from', extName);
+                    return enabledInjector;
+                }
             }
-
-            // Use the first available extension (user's chosen/default wallet)
-            enabledInjector = enabled[0];
-            console.log('[PolkadotAuth] Using injector:', enabledInjector.name || enabledInjector.source);
-            return enabledInjector;
         }
 
         console.log('[PolkadotAuth] No compatible Polkadot API found');
